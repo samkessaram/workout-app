@@ -72,5 +72,4 @@ RIR input row, the INTERMEDIATE stage (RIR-gated progression), volume ramps, sch
 
 ## Open items
 
-- Git remote and GitHub Pages setup.
 - Confirm the Schoenfeld PMID and other unverified citations if any are ever quoted.

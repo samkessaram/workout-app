@@ -6,8 +6,8 @@
 
 **Status:** ready-for-agent
 
-- [ ] Past Sessions are listed newest first and open to show all Sets and notes
-- [ ] Choosing an Exercise shows its recent Sessions with weight and reps per Set
-- [ ] Corrected Sets show the corrected value with the previous value visible
-- [ ] Warmup Sets are visually distinct from working Sets
-- [ ] Works fully offline and with no keyboard input
+- [x] Past Sessions are listed newest first and open to show all Sets and notes
+- [x] Choosing an Exercise shows its recent Sessions with weight and reps per Set
+- [x] Corrected Sets show the corrected value with the previous value visible
+- [x] Warmup Sets are visually distinct from working Sets
+- [x] Works fully offline and with no keyboard input
