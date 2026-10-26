@@ -8,6 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
+    "replay": "tsx scripts/replay.ts",
     "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json"
   },
   "devDependencies": {
@@ -20,6 +21,7 @@
     "jsdom": "^29.1.1",
     "svelte": "^5.57.2",
     "svelte-check": "^4.7.7",
+    "tsx": "^4.23.15",
     "typescript": "~6.0.3",
     "vite": "^8.3.4",
     "vite-plugin-pwa": "^2.0.0",

@@ -6,7 +6,7 @@
 
 **Status:** ready-for-agent
 
-- [ ] Running one command replays the fixture history through the engine
-- [ ] Output shows, per Exercise per Session: suggested vs actual, and the rule fired
-- [ ] Output flags large disagreements for review
-- [ ] The harness reuses the engine as-is, with no separate copy of the rules
+- [x] Running one command replays the fixture history through the engine
+- [x] Output shows, per Exercise per Session: suggested vs actual, and the rule fired
+- [x] Output flags large disagreements for review
+- [x] The harness reuses the engine as-is, with no separate copy of the rules

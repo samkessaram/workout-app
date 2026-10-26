@@ -1,0 +1,49 @@
+{
+ "date": "2026-02-09",
+ "type": "lower",
+ "location": "gym",
+ "exercises": [
+  {
+   "name": "Leg Press",
+   "equipment": "machine",
+   "sets": [
+    {
+     "set": 1,
+     "weight_lb": 105,
+     "reps": 12
+    },
+    {
+     "set": 2,
+     "weight_lb": 105,
+     "reps": 12
+    },
+    {
+     "set": 3,
+     "weight_lb": 105,
+     "reps": 11
+    }
+   ]
+  },
+  {
+   "name": "DB Curl",
+   "equipment": "dumbbell",
+   "sets": [
+    {
+     "set": 1,
+     "weight_lb": 25,
+     "reps": 10
+    },
+    {
+     "set": 2,
+     "weight_lb": 25,
+     "reps": 10
+    },
+    {
+     "set": 3,
+     "weight_lb": 25,
+     "reps": 9
+    }
+   ]
+  }
+ ]
+}
