@@ -103,13 +103,13 @@ const fmt = (w: number | null, unit: Unit) => (w === null ? '—' : `${Math.roun
 export function formatReplay(rows: ReplayRow[], summary: ReplaySummary, unit: Unit = 'lb'): string {
   const pad = (s: string, n: number) => (s.length >= n ? s : s + ' '.repeat(n - s.length))
   const lines = [
-    `${pad('date', 11)}${pad('exercise', 28)}${pad('rule', 15)}${pad('suggested', 14)}${pad('actual', 22)}delta`,
+    `${pad('date', 11)}${pad('exercise', 28)}${pad('stage', 12)}${pad('rule', 18)}${pad('suggested', 14)}${pad('actual', 22)}delta`,
   ]
   for (const r of rows) {
     const sug = `${fmt(r.suggested.weight, unit)} x ${r.suggested.reps}`
     const act = `${fmt(r.actual.weight, unit)} x ${r.actual.reps.join('/')}`
     const d = r.delta === null ? '' : `${r.delta > 0 ? '+' : ''}${(r.delta * 100).toFixed(0)}%`
-    lines.push(`${pad(r.date, 11)}${pad(r.exercise.slice(0, 26), 28)}${pad(r.rule, 15)}${pad(sug, 14)}${pad(act, 22)}${d}${r.flagged ? '  <-- review' : ''}`)
+    lines.push(`${pad(r.date, 11)}${pad(r.exercise.slice(0, 26), 28)}${pad(r.stage, 12)}${pad(r.rule, 18)}${pad(sug, 14)}${pad(act, 22)}${d}${r.flagged ? '  <-- review' : ''}`)
   }
   lines.push('')
   lines.push(

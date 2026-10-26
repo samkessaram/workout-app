@@ -36,13 +36,13 @@ describe('SessionView coaching', () => {
     await screen.findByText("Today's Suggestions")
     expect(screen.getAllByText(/Add 5 lb and restart at 8 reps/).length).toBeGreaterThan(0)
     await fireEvent.click(screen.getByRole('button', { name: /Leg Press/ }))
-    await screen.findByText(/Suggestion:/)
+    await screen.findByText(/Suggestion/, { selector: 'strong' })
     // The recommended chip is the suggested weight, one tap logs it.
     await fireEvent.click(await screen.findByRole('button', { name: /Log set · 105 lb × 8/ }))
     await waitFor(async () => expect((await db.sessions.get(sid))!.sets).toHaveLength(1))
     await waitFor(async () => {
       const [entry] = await db.suggestionLog.toArray()
-      expect(entry).toMatchObject({ rule: 'dp-increase', stage: 'EARLY_INT' })
+      expect(entry).toMatchObject({ rule: 'dp-increase', stage: 'EARLY_INT' }) // machine Exercise
       expect(entry.actual).toEqual([{ weight: 105, unit: 'lb', reps: 8 }])
     })
   })
@@ -54,7 +54,7 @@ describe('SessionView coaching', () => {
     expect(screen.queryByText('Brief')).toBeNull()
     await fireEvent.click(press)
     await screen.findByText('Weight')
-    expect(screen.queryByText(/Suggestion:/)).toBeNull()
+    expect(screen.queryByText(/Suggestion/, { selector: 'strong' })).toBeNull()
     await fireEvent.click(await screen.findByRole('button', { name: /Log set/ }))
     await waitFor(async () => expect((await db.sessions.get(sid))!.sets).toHaveLength(1))
     expect(await db.suggestionLog.count()).toBe(0)

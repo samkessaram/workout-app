@@ -65,7 +65,7 @@
 <div class="stack">
   {#if suggestion}
     <p class="card">
-      <strong>Suggestion:</strong>
+      <strong>Suggestion</strong> <span class="muted">({suggestion.stage})</span>:
       {suggestion.weight === null ? 'pick a weight' : fmtWeight(suggestion.weight, suggestion.unit)} × {suggestion.reps}
       <span class="muted"> — {suggestion.reason}</span>
     </p>

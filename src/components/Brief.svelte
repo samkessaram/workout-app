@@ -32,7 +32,7 @@
         <div style="margin-bottom:0.4rem">
           {label(exerciseId)}:
           <strong>{s.weight === null ? 'pick a weight' : fmtWeight(s.weight, s.unit)} × {s.reps}</strong>
-          <div class="muted">{s.reason}</div>
+          <div class="muted">{s.stage} · {s.reason}</div>
         </div>
       {/each}
     </div>

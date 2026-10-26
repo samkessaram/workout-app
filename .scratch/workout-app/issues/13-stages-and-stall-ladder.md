@@ -6,9 +6,9 @@
 
 **Status:** ready-for-agent
 
-- [ ] Stage is tracked per Exercise and shown with each Suggestion's reason
-- [ ] NOVICE compounds are suggested a weight increase nearly every Session when targets are met
-- [ ] The NOVICE to EARLY_INT transition follows the research doc and the 8-week gate
-- [ ] Each rung of the stall ladder is covered by tests
-- [ ] A Stall with a confounder chip does not advance the ladder
-- [ ] Replay harness output reflects the new stages on real history
+- [x] Stage is tracked per Exercise and shown with each Suggestion's reason
+- [x] NOVICE compounds are suggested a weight increase nearly every Session when targets are met
+- [x] The NOVICE to EARLY_INT transition follows the research doc and the 8-week gate
+- [x] Each rung of the stall ladder is covered by tests
+- [x] A Stall with a confounder chip does not advance the ladder
+- [x] Replay harness output reflects the new stages on real history
