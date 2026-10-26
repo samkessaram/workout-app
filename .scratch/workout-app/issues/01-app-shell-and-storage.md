@@ -7,8 +7,8 @@
 **Status:** ready-for-agent
 
 - [ ] The app can be installed to an Android home screen and opens with no network
-- [ ] Four tabs navigate between placeholder screens
+- [x] Four tabs navigate between placeholder screens
 - [ ] Theme is dark by default and follows the system theme
-- [ ] Dexie schema is versioned and the stores from the spec exist
-- [ ] lb/kg setting persists across reloads
-- [ ] `vitest` runs a passing smoke test
+- [x] Dexie schema is versioned and the stores from the spec exist
+- [x] lb/kg setting persists across reloads
+- [x] `vitest` runs a passing smoke test
