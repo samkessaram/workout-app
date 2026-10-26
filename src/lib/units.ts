@@ -1,4 +1,4 @@
-import type { Unit } from './db'
+import type { Exercise, Unit } from './db'
 
 export const LB_PER_KG = 2.20462
 
@@ -21,3 +21,10 @@ export function fmtWeight(weight: number, unit: Unit): string {
 export function stepChips(unit: Unit): number[] {
   return unit === 'lb' ? [1, 2.5, 5, 10] : [0.5, 1, 2.5, 5]
 }
+
+/** Step in the active unit; converted steps round to a loadable fraction. */
+export function stepIn(ex: Pick<Exercise, 'step' | 'stepUnit'>, unit: Unit): number {
+  if (ex.stepUnit === unit) return ex.step
+  return Math.max(unit === 'kg' ? 0.25 : 0.5, roundTo(convert(ex.step, ex.stepUnit, unit), unit === 'kg' ? 0.25 : 0.5))
+}
+

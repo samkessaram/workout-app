@@ -1,11 +1,13 @@
 <script lang="ts">
-  import type { Exercise, Routine, Session } from '../lib/db'
-  import { repChips, stepIn, weightChips, type ExerciseSession } from '../lib/history'
+  import { db, type Exercise, type Routine, type Session } from '../lib/db'
+  import { repChips, weightChips, type ExerciseSession } from '../lib/history'
   import { restFor } from '../lib/rest'
   import { startRest } from '../lib/rest.svelte'
+  import type { Suggestion } from '../lib/engine/types'
+  import { recordActual } from '../lib/coach'
   import { addSet, setsFor } from '../lib/sessions'
   import { prefs } from '../lib/settings.svelte'
-  import { fmtWeight } from '../lib/units'
+  import { fmtWeight, stepIn } from '../lib/units'
   import Chips from './Chips.svelte'
   import SetRow from './SetRow.svelte'
   import Strip from './Strip.svelte'
@@ -20,16 +22,16 @@
     exercise: Exercise
     session: Session
     history: ExerciseSession[]
-    suggestion?: { weight: number; reps: number }
+    suggestion?: Suggestion
     routine?: Routine
   } = $props()
 
   const unit = $derived(prefs.unit)
   const step = $derived(stepIn(exercise, unit))
-  const chips = $derived(weightChips(history, exercise, unit, suggestion?.weight))
-  const reps = $derived(repChips(exercise.repMin, exercise.repMax))
-  const recReps = $derived(
-    suggestion?.reps ?? Math.round((exercise.repMin + exercise.repMax) / 2),
+  const chips = $derived(weightChips(history, exercise, unit, suggestion?.weight ?? undefined))
+  const recReps = $derived(suggestion?.reps ?? Math.round((exercise.repMin + exercise.repMax) / 2))
+  const reps = $derived(
+    [...new Set([...repChips(exercise.repMin, exercise.repMax), recReps])].sort((a, b) => a - b),
   )
 
   // Picked values override the recommendation until a Set is logged.
@@ -51,6 +53,7 @@
       pickedReps = repCount
       warmup = false
       error = ''
+      await recordActual(session.id!, exercise.id!, db)
     } catch (e) {
       error = e instanceof Error ? e.message : String(e)
     }
@@ -60,6 +63,13 @@
 </script>
 
 <div class="stack">
+  {#if suggestion}
+    <p class="card">
+      <strong>Suggestion:</strong>
+      {suggestion.weight === null ? 'pick a weight' : fmtWeight(suggestion.weight, suggestion.unit)} × {suggestion.reps}
+      <span class="muted"> — {suggestion.reason}</span>
+    </p>
+  {/if}
   {#if chips.options.length === 0}
     <p class="muted">No history for this Exercise yet. Pick a conservative weight.</p>
   {:else}

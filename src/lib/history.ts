@@ -1,5 +1,5 @@
 import { db, type Exercise, type SessionSet, type Unit } from './db'
-import { convert, roundTo } from './units'
+import { convert, roundTo, stepIn } from './units'
 
 /** One Session's worth of an Exercise, as the chips and the engine see it. */
 export interface ExerciseSession {
@@ -36,12 +36,6 @@ export async function exerciseHistory(
     })
     .filter((h) => h.sets.length > 0)
     .sort((a, b) => a.startedAt - b.startedAt)
-}
-
-/** Step in the active unit; converted steps round to a loadable fraction. */
-export function stepIn(ex: Pick<Exercise, 'step' | 'stepUnit'>, unit: Unit): number {
-  if (ex.stepUnit === unit) return ex.step
-  return Math.max(unit === 'kg' ? 0.25 : 0.5, roundTo(convert(ex.step, ex.stepUnit, unit), unit === 'kg' ? 0.25 : 0.5))
 }
 
 export function lastWorking(history: ExerciseSession[]): SessionSet | undefined {

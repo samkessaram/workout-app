@@ -3,7 +3,10 @@
   import { db, type Routine } from '../lib/db'
   import { exerciseLabel } from '../lib/exercises'
   import { exerciseHistory, type ExerciseSession } from '../lib/history'
-  import { onDestroy, onMount } from 'svelte'
+  import { onDestroy, onMount, untrack } from 'svelte'
+  import { buildBrief, logSuggestion, suggestionFor, type Brief as BriefData } from '../lib/coach'
+  import type { Suggestion } from '../lib/engine/types'
+  import { prefs } from '../lib/settings.svelte'
   import { flagsRelevantTo, openFlags, stoppedInSession } from '../lib/pain'
   import { setExerciseNote, toggleExerciseChip } from '../lib/chips'
   import { holdWakeLock } from '../lib/feedback'
@@ -13,6 +16,7 @@
   import ExercisePicker from '../components/ExercisePicker.svelte'
   import PainFlagList from '../components/PainFlagList.svelte'
   import PainFlagPanel from '../components/PainFlagPanel.svelte'
+  import Brief from '../components/Brief.svelte'
   import NoteChips from '../components/NoteChips.svelte'
   import RestTimer from '../components/RestTimer.svelte'
   import RoutinePrompt from '../components/RoutinePrompt.svelte'
@@ -31,6 +35,34 @@
   let currentId = $state<number | null>(null)
   let adding = $state(false)
   let history = $state<ExerciseSession[]>([])
+  let suggestion = $state<Suggestion | undefined>()
+  let brief = $state<BriefData | undefined>()
+
+  // Trainer mode is pure logging: no Brief, no Suggestions, nothing written to suggestionLog.
+  const coaching = $derived($session ? !$session.trainer : false)
+
+  $effect(() => {
+    const id = currentId
+    const on = coaching
+    suggestion = undefined
+    if (id === null || !on) return
+    const s = untrack(() => $session)
+    if (!s) return
+    suggestionFor(id, s, untrack(() => prefs.unit)).then(async (sug) => {
+      if (!sug || currentId !== id) return
+      suggestion = sug
+      await logSuggestion(sessionId, id, sug)
+    })
+  })
+
+  // The Brief is built once, from the planned Exercises, before the first Set.
+  let briefBuilt = false
+  $effect(() => {
+    const s = $session
+    if (!s || !coaching || briefBuilt || s.exerciseIds.length === 0 && s.sets.length > 0) return
+    briefBuilt = true
+    buildBrief(s, untrack(() => prefs.unit)).then((b) => (brief = b))
+  })
 
   $effect(() => {
     const id = currentId
@@ -111,10 +143,13 @@
       onnote={(t) => setExerciseNote(sessionId, current.id!, t)}
     />
     {#key current.id}
-      <SetLogger exercise={current} session={$session} {history} {routine} />
+      <SetLogger exercise={current} session={$session} {history} {routine} {suggestion} />
     {/key}
     <button class="btn block" style="margin-top:1rem" onclick={() => (currentId = null)}>Next Exercise ›</button>
   {:else}
+    {#if brief && finished.length === 0}
+      <Brief {brief} exercises={$exercises ?? []} />
+    {/if}
     <h2>What's next?</h2>
     <div class="stack">
       {#each remaining as id (id)}

@@ -1,7 +1,8 @@
 import 'fake-indexeddb/auto'
 import { describe, expect, it } from 'vitest'
 import { WorkoutDB } from './db'
-import { exerciseHistory, repChips, stepIn, weightChips } from './history'
+import { exerciseHistory, repChips, weightChips } from './history'
+import { stepIn } from './units'
 import { addSet, autoCloseStale, AUTO_CLOSE_MS, closeSession, correctSet, getActiveSession, startSession } from './sessions'
 
 const opts = { type: 'lower' as const, location: 'gym', trainer: false, timer: true }

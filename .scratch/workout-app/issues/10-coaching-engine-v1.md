@@ -6,11 +6,11 @@
 
 **Status:** ready-for-agent
 
-- [ ] Engine is pure TS with unit tests written first, covering double progression, rounding, +1 rep fallback, calibration and missing history
-- [ ] Each Suggestion carries a one-line reason shown to the lifter
-- [ ] Suggestions respect the active unit and round to loadable increments
-- [ ] The Brief shows the last 1-2 Sessions of the type, Suggestions and relevant open Pain flags
-- [ ] Logger chips mark the Suggestion as recommended
-- [ ] `suggestionLog` records stage, rule fired, suggested and actual values
-- [ ] Trainer mode shows no Brief, Suggestions or coaching
-- [ ] Warmups and Corrected-away values never influence a Suggestion
+- [x] Engine is pure TS with unit tests written first, covering double progression, rounding, +1 rep fallback, calibration and missing history
+- [x] Each Suggestion carries a one-line reason shown to the lifter
+- [x] Suggestions respect the active unit and round to loadable increments
+- [x] The Brief shows the last 1-2 Sessions of the type, Suggestions and relevant open Pain flags
+- [x] Logger chips mark the Suggestion as recommended
+- [x] `suggestionLog` records stage, rule fired, suggested and actual values
+- [x] Trainer mode shows no Brief, Suggestions or coaching
+- [x] Warmups and Corrected-away values never influence a Suggestion

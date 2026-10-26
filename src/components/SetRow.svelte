@@ -1,10 +1,9 @@
 <script lang="ts">
   import type { Exercise, SessionSet } from '../lib/db'
-  import { stepIn } from '../lib/history'
-  import { setSetNote, toggleSetChip } from '../lib/chips'
+    import { setSetNote, toggleSetChip } from '../lib/chips'
   import { correctSet } from '../lib/sessions'
   import { prefs } from '../lib/settings.svelte'
-  import { convert, fmtWeight, roundTo } from '../lib/units'
+  import { convert, fmtWeight, roundTo, stepIn } from '../lib/units'
   import NoteChips from './NoteChips.svelte'
   import Strip from './Strip.svelte'
 

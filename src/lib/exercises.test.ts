@@ -37,8 +37,8 @@ describe('exercise library', () => {
   })
 
   it('has the spec defaults per kind', () => {
-    expect(KIND_DEFAULTS['compound-lower']).toMatchObject({ repMin: 6, repMax: 10, rest: 'heavy', stepPct: 0.05 })
-    expect(KIND_DEFAULTS.machine).toMatchObject({ repMin: 8, repMax: 12, rest: 'moderate', stepPct: 0.04 })
-    expect(KIND_DEFAULTS.isolation).toMatchObject({ repMin: 10, repMax: 15, rest: 'isolation', stepPct: 0.025 })
+    expect(KIND_DEFAULTS['compound-lower']).toMatchObject({ repMin: 6, repMax: 10, rest: 'heavy' })
+    expect(KIND_DEFAULTS.machine).toMatchObject({ repMin: 8, repMax: 12, rest: 'moderate' })
+    expect(KIND_DEFAULTS.isolation).toMatchObject({ repMin: 10, repMax: 15, rest: 'isolation' })
   })
 })

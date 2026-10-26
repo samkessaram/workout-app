@@ -19,15 +19,15 @@ export const BODY_AREAS = [...new Set([...MUSCLES, ...JOINTS])]
 export const REST_CATEGORIES: RestCategory[] = ['heavy', 'moderate', 'isolation']
 export const REST_SECONDS: Record<RestCategory, number> = { heavy: 120, moderate: 90, isolation: 60 }
 
-/** Spec defaults: rep ranges, rest category and progression step as a percent of load. */
+/** Spec defaults: rep ranges and rest category per kind. Step percentages live in the engine config. */
 export const KIND_DEFAULTS: Record<
   ExerciseKind,
-  { repMin: number; repMax: number; rest: RestCategory; stepPct: number; compound: boolean }
+  { repMin: number; repMax: number; rest: RestCategory; compound: boolean }
 > = {
-  'compound-lower': { repMin: 6, repMax: 10, rest: 'heavy', stepPct: 0.05, compound: true },
-  'compound-upper': { repMin: 6, repMax: 10, rest: 'heavy', stepPct: 0.025, compound: true },
-  machine: { repMin: 8, repMax: 12, rest: 'moderate', stepPct: 0.04, compound: false },
-  isolation: { repMin: 10, repMax: 15, rest: 'isolation', stepPct: 0.025, compound: false },
+  'compound-lower': { repMin: 6, repMax: 10, rest: 'heavy', compound: true },
+  'compound-upper': { repMin: 6, repMax: 10, rest: 'heavy', compound: true },
+  machine: { repMin: 8, repMax: 12, rest: 'moderate', compound: false },
+  isolation: { repMin: 10, repMax: 15, rest: 'isolation', compound: false },
 }
 
 export function defaultStep(unit: Unit): number {
