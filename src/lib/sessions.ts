@@ -89,6 +89,32 @@ export async function addSet(sessionId: number, input: NewSet, store = db, now =
   return set
 }
 
+/**
+ * An explicit Correction: the previous value stays on the Set and the new one replaces it.
+ * Allowed on closed Sessions too, since mistakes are often noticed later.
+ */
+export async function correctSet(
+  sessionId: number,
+  setId: string,
+  fix: { weight: number; unit: Unit; reps: number },
+  store = db,
+  now = Date.now(),
+): Promise<void> {
+  if (fix.reps < 1) throw new Error('Reps must be at least 1')
+  if (fix.weight < 0) throw new Error('Weight cannot be negative')
+  await store.transaction('rw', store.sessions, async () => {
+    const s = await store.sessions.get(sessionId)
+    const set = s?.sets.find((x) => x.id === setId)
+    if (!s || !set) throw new Error('Set not found')
+    if (set.weight === fix.weight && set.unit === fix.unit && set.reps === fix.reps) return
+    set.prev = [...(set.prev ?? []), { weight: set.weight, unit: set.unit, reps: set.reps, at: now }]
+    set.weight = fix.weight
+    set.unit = fix.unit
+    set.reps = fix.reps
+    await store.sessions.put(s)
+  })
+}
+
 export async function closeSession(sessionId: number, store = db, now = Date.now()): Promise<Session> {
   return mutate(sessionId, store, (s) => {
     s.closedAt = now

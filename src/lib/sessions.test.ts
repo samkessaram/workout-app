@@ -2,7 +2,7 @@ import 'fake-indexeddb/auto'
 import { describe, expect, it } from 'vitest'
 import { WorkoutDB } from './db'
 import { exerciseHistory, repChips, stepIn, weightChips } from './history'
-import { addSet, autoCloseStale, AUTO_CLOSE_MS, closeSession, getActiveSession, startSession } from './sessions'
+import { addSet, autoCloseStale, AUTO_CLOSE_MS, closeSession, correctSet, getActiveSession, startSession } from './sessions'
 
 const opts = { type: 'lower' as const, location: 'gym', trainer: false, timer: true }
 const set = (exerciseId: number, weight: number, reps: number, warmup = false, unit: 'lb' | 'kg' = 'lb') => ({
@@ -89,5 +89,41 @@ describe('history chips', () => {
   it('converts the step between units', () => {
     expect(stepIn({ step: 5, stepUnit: 'lb' }, 'lb')).toBe(5)
     expect(stepIn({ step: 5, stepUnit: 'lb' }, 'kg')).toBe(2.25)
+  })
+})
+
+describe('corrections', () => {
+  it('keeps the previous value and uses the corrected one for history and chips', async () => {
+    const store = new WorkoutDB('c-basic')
+    const id = await startSession(opts, store, 1000)
+    const logged = await addSet(id, set(1, 180, 10), store)
+    await correctSet(id, logged.id, { weight: 170, unit: 'lb', reps: 10 }, store, 2000)
+    const s = (await store.sessions.get(id))!
+    expect(s.sets[0]).toMatchObject({ weight: 170, reps: 10, prev: [{ weight: 180, unit: 'lb', reps: 10, at: 2000 }] })
+    const history = await exerciseHistory(1, store)
+    expect(weightChips(history, { step: 5, stepUnit: 'lb' }, 'lb').recommended).toBe(170)
+  })
+
+  it('chains corrections oldest first and ignores a no-op', async () => {
+    const store = new WorkoutDB('c-chain')
+    const id = await startSession(opts, store)
+    const logged = await addSet(id, set(1, 100, 8), store)
+    await correctSet(id, logged.id, { weight: 100, unit: 'lb', reps: 8 }, store)
+    expect((await store.sessions.get(id))!.sets[0].prev).toBeUndefined()
+    await correctSet(id, logged.id, { weight: 105, unit: 'lb', reps: 8 }, store)
+    await correctSet(id, logged.id, { weight: 105, unit: 'lb', reps: 9 }, store)
+    const set0 = (await store.sessions.get(id))!.sets[0]
+    expect(set0.prev?.map((p) => [p.weight, p.reps])).toEqual([[100, 8], [105, 8]])
+    expect([set0.weight, set0.reps]).toEqual([105, 9])
+  })
+
+  it('works on a closed Session and rejects unknown Sets', async () => {
+    const store = new WorkoutDB('c-closed')
+    const id = await startSession(opts, store)
+    const logged = await addSet(id, set(1, 100, 8), store)
+    await closeSession(id, store)
+    await correctSet(id, logged.id, { weight: 95, unit: 'lb', reps: 8 }, store)
+    expect((await store.sessions.get(id))!.sets[0].weight).toBe(95)
+    await expect(correctSet(id, 'nope', { weight: 1, unit: 'lb', reps: 1 }, store)).rejects.toThrow()
   })
 })

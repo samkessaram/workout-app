@@ -3,7 +3,7 @@
   import { db } from '../lib/db'
   import { exerciseLabel } from '../lib/exercises'
   import { setsFor } from '../lib/sessions'
-  import { fmtWeight } from '../lib/units'
+  import SetRow from './SetRow.svelte'
 
   let { sessionId, ondone }: { sessionId: number; ondone: () => void } = $props()
 
@@ -25,7 +25,7 @@
         <div class="card">
           <strong>{ex ? exerciseLabel(ex) : 'Exercise'}</strong>
           {#each sets as x (x.id)}
-            <div>{x.warmup ? 'Warmup ' : ''}{fmtWeight(x.weight, x.unit)} × {x.reps}</div>
+            {#if ex}<SetRow set={x} sessionId={s.id!} exercise={ex} label={x.warmup ? 'Warmup' : 'Set'} />{/if}
           {/each}
         </div>
       {/if}

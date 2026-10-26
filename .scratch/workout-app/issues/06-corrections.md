@@ -6,7 +6,7 @@
 
 **Status:** ready-for-agent
 
-- [ ] A confirmed Set can be corrected via an explicit action using the same chip/strip input
-- [ ] The previous value remains stored and visible on the Set
-- [ ] History and chips derived from history use the corrected value, not the superseded one
-- [ ] No other path changes a confirmed Set's numbers
+- [x] A confirmed Set can be corrected via an explicit action using the same chip/strip input
+- [x] The previous value remains stored and visible on the Set
+- [x] History and chips derived from history use the corrected value, not the superseded one
+- [x] No other path changes a confirmed Set's numbers

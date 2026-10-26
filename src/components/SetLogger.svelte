@@ -7,6 +7,7 @@
   import { prefs } from '../lib/settings.svelte'
   import { fmtWeight } from '../lib/units'
   import Chips from './Chips.svelte'
+  import SetRow from './SetRow.svelte'
   import Strip from './Strip.svelte'
 
   let {
@@ -93,10 +94,12 @@
   {#if logged.length}
     <div class="card">
       {#each logged as s, i (s.id)}
-        <div>
-          {s.warmup ? 'Warmup' : `Set ${logged.slice(0, i + 1).filter((x) => !x.warmup).length}`}:
-          {fmtWeight(s.weight, s.unit)} × {s.reps}
-        </div>
+        <SetRow
+          set={s}
+          sessionId={session.id!}
+          {exercise}
+          label={s.warmup ? 'Warmup' : `Set ${logged.slice(0, i + 1).filter((x) => !x.warmup).length}`}
+        />
       {/each}
     </div>
   {/if}
