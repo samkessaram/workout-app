@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { getActiveSession } from '../lib/sessions'
+  import BackupNudge from '../components/BackupNudge.svelte'
   import PainFlagList from '../components/PainFlagList.svelte'
   import SessionSummary from '../components/SessionSummary.svelte'
   import StartForm from '../components/StartForm.svelte'
@@ -30,6 +31,7 @@
   />
 {:else}
   <h1>Today</h1>
+  <BackupNudge />
   <StartForm onstarted={(id) => (activeId = id)} />
   <PainFlagList />
 {/if}

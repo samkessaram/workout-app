@@ -9,7 +9,8 @@ export async function loadRest() {
 
 export function startRest(total: number, now = Date.now()) {
   rest.timer = { startedAt: now, total }
-  void setSetting('restTimer', rest.timer)
+  // IndexedDB cannot clone a reactive proxy, so persist a plain copy.
+  void setSetting('restTimer', { startedAt: now, total })
 }
 
 export function clearRest() {

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { loadPrefs } from './lib/settings.svelte'
+  import { ensureFirstRun, requestPersistence } from './lib/backup'
   import { clearRest, loadRest } from './lib/rest.svelte'
   import { autoCloseStale } from './lib/sessions'
   import Today from './screens/Today.svelte'
@@ -22,6 +23,8 @@
   let ready = $state(false)
   onMount(async () => {
     if ((await autoCloseStale()).length) clearRest()
+    await ensureFirstRun()
+    void requestPersistence()
     await loadPrefs()
     await loadRest()
     ready = true

@@ -6,8 +6,8 @@
 
 **Status:** ready-for-agent
 
-- [ ] Export produces one JSON file containing all stores and a schema version, in one tap
-- [ ] Importing that file into a fresh install restores all data
-- [ ] An import with an unknown or newer schema version is refused with a clear message
-- [ ] `navigator.storage.persist()` is requested
-- [ ] A nudge appears after 14 days since the last export and clears after exporting
+- [x] Export produces one JSON file containing all stores and a schema version, in one tap
+- [x] Importing that file into a fresh install restores all data
+- [x] An import with an unknown or newer schema version is refused with a clear message
+- [x] `navigator.storage.persist()` is requested
+- [x] A nudge appears after 14 days since the last export and clears after exporting

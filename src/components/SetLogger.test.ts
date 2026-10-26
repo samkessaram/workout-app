@@ -7,6 +7,7 @@ import { addSet, closeSession, startSession } from '../lib/sessions'
 import { newExercise, saveExercise } from '../lib/exercises'
 import { prefs } from '../lib/settings.svelte'
 import { rest } from '../lib/rest.svelte'
+import { getSetting } from '../lib/settings.svelte'
 import SetLogger from './SetLogger.svelte'
 
 afterEach(async () => {
@@ -79,5 +80,7 @@ describe('SetLogger', () => {
     expect(rest.timer).toBeNull()
     await fireEvent.click(screen.getByRole('button', { name: /Log set/ }))
     await waitFor(() => expect(rest.timer?.total).toBe(90)) // machine Exercise: moderate rest
+    // The timer must survive an app kill, so it has to reach IndexedDB.
+    await waitFor(async () => expect(await getSetting('restTimer', null)).toMatchObject({ total: 90 }))
   })
 })

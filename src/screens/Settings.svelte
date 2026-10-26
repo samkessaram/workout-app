@@ -1,17 +1,22 @@
 <script lang="ts">
   import { prefs, setUnit } from '../lib/settings.svelte'
+  import BackupNudge from '../components/BackupNudge.svelte'
+  import Backup from './Backup.svelte'
   import ChipSettings from './ChipSettings.svelte'
   import ExerciseLibrary from './ExerciseLibrary.svelte'
 
-  let view = $state<'main' | 'exercises' | 'chips'>('main')
+  let view = $state<'main' | 'exercises' | 'chips' | 'backup'>('main')
 </script>
 
 {#if view === 'exercises'}
   <ExerciseLibrary onback={() => (view = 'main')} />
+{:else if view === 'backup'}
+  <Backup onback={() => (view = 'main')} />
 {:else if view === 'chips'}
   <ChipSettings onback={() => (view = 'main')} />
 {:else}
 <h1>Settings</h1>
+<BackupNudge onopen={() => (view = 'backup')} />
 
 <section>
   <h2>Exercises</h2>
@@ -21,6 +26,11 @@
 <section>
   <h2>Notes</h2>
   <button class="btn block" onclick={() => (view = 'chips')}>Custom note chips ›</button>
+</section>
+
+<section>
+  <h2>Data</h2>
+  <button class="btn block" onclick={() => (view = 'backup')}>Export / restore ›</button>
 </section>
 
 <section>
