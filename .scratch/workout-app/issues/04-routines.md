@@ -6,7 +6,7 @@
 
 **Status:** ready-for-agent
 
-- [ ] A Routine can be created and edited per Session type (add, remove, reorder Exercises; set target sets, rep range, rest category)
-- [ ] A new Session pre-loads the Routine for its type
-- [ ] After each Exercise, buttons offer the remaining Routine Exercises and Done
-- [ ] At close, a one-time prompt offers to update the Routine when the Session deviated from it
+- [x] A Routine can be created and edited per Session type (add, remove, reorder Exercises; set target sets, rep range, rest category)
+- [x] A new Session pre-loads the Routine for its type
+- [x] After each Exercise, buttons offer the remaining Routine Exercises and Done
+- [x] At close, a one-time prompt offers to update the Routine when the Session deviated from it

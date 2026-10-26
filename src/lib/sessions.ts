@@ -1,3 +1,4 @@
+import { getRoutine } from './routines'
 import { db, type Session, type SessionSet, type SessionType, type Unit } from './db'
 
 export const SESSION_TYPES: SessionType[] = ['upper', 'lower', 'rowing', 'other']
@@ -24,7 +25,7 @@ export async function startSession(opts: StartOptions, store = db, now = Date.no
     trainer: opts.trainer,
     timer: opts.timer,
     startedAt: now,
-    exerciseIds: opts.exerciseIds ?? [],
+    exerciseIds: opts.exerciseIds ?? (await getRoutine(opts.type, store))?.entries.map((e) => e.exerciseId) ?? [],
     sets: [],
   }
   return (await store.sessions.add(session)) as number
