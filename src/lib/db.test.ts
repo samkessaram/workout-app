@@ -21,7 +21,8 @@ describe('database', () => {
 
     const id = await store.sessions.add({
       date: '2026-10-26', type: 'lower', location: 'gym', trainer: false, timer: true,
-      startedAt: 0, sets: [{ exerciseId: 1, weight: 135, unit: 'lb', reps: 8, warmup: false }],
+      startedAt: 0, exerciseIds: [1],
+      sets: [{ id: 'a', at: 0, exerciseId: 1, weight: 135, unit: 'lb', reps: 8, warmup: false }],
     })
     await setSetting('unit', 'kg', store)
     expect((await store.sessions.get(id))!.sets[0]).toMatchObject({ weight: 135, unit: 'lb' })

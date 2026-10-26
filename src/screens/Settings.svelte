@@ -1,8 +1,19 @@
 <script lang="ts">
   import { prefs, setUnit } from '../lib/settings.svelte'
+  import ExerciseLibrary from './ExerciseLibrary.svelte'
+
+  let view = $state<'main' | 'exercises'>('main')
 </script>
 
+{#if view === 'exercises'}
+  <ExerciseLibrary onback={() => (view = 'main')} />
+{:else}
 <h1>Settings</h1>
+
+<section>
+  <h2>Exercises</h2>
+  <button class="btn block" onclick={() => (view = 'exercises')}>Manage Exercises ›</button>
+</section>
 
 <section>
   <h2>Units</h2>
@@ -17,9 +28,9 @@
   </div>
   <p class="muted">Changes display and input only. Logged weights keep the unit they were entered in.</p>
 </section>
+{/if}
 
 <style>
-  h2 { font-size: 1.1rem; margin: 0 0 0.5rem; }
   .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
   .seg button {
     min-height: var(--tap);

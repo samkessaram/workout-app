@@ -4,16 +4,21 @@ export type Unit = 'lb' | 'kg'
 export type Equipment = 'machine' | 'dumbbell' | 'cable' | 'barbell' | 'bodyweight'
 export type SessionType = 'upper' | 'lower' | 'rowing' | 'other'
 export type RestCategory = 'heavy' | 'moderate' | 'isolation'
+export type ExerciseKind = 'compound-lower' | 'compound-upper' | 'machine' | 'isolation'
 
 export interface Exercise {
   id?: number
   name: string
   equipment: Equipment
-  step?: number
-  repMin?: number
-  repMax?: number
-  restCategory?: RestCategory
-  stage?: 'CALIBRATION' | 'NOVICE' | 'EARLY_INT'
+  kind: ExerciseKind
+  /** Smallest loadable jump, in `stepUnit`. */
+  step: number
+  stepUnit: Unit
+  repMin: number
+  repMax: number
+  restCategory: RestCategory
+  muscle?: string
+  bodyAreas: string[]
 }
 
 export interface RoutineEntry {
@@ -30,12 +35,25 @@ export interface Routine {
   entries: RoutineEntry[]
 }
 
+export interface SetValue {
+  weight: number
+  unit: Unit
+  reps: number
+  at: number
+}
+
 export interface SessionSet {
+  id: string
   exerciseId: number
   weight: number
   unit: Unit
   reps: number
   warmup: boolean
+  at: number
+  /** Superseded values, oldest first. Set only by an explicit Correction. */
+  prev?: SetValue[]
+  chips?: string[]
+  note?: string
 }
 
 export interface Session {
@@ -47,7 +65,14 @@ export interface Session {
   timer: boolean
   startedAt: number
   closedAt?: number
+  /** Exercises in the order planned or worked. */
+  exerciseIds: number[]
   sets: SessionSet[]
+  exerciseChips?: Record<number, string[]>
+  exerciseNotes?: Record<number, string>
+  /** Per-Location baseline answers: `${exerciseId}` -> 'same' | 'new'. */
+  baselineAnswers?: Record<number, 'same' | 'new'>
+  nextTargets?: { exerciseId: number; text: string }[]
 }
 
 export interface PainFlag {

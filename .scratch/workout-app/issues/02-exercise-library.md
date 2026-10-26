@@ -6,8 +6,8 @@
 
 **Status:** ready-for-agent
 
-- [ ] Can create an Exercise with name and equipment, and it persists
-- [ ] Smallest weight step is chosen from chips, not typed
-- [ ] Rep range and rest category default by exercise kind and are editable
-- [ ] Exercises with the same name but different equipment coexist as distinct Exercises
-- [ ] Exercise list is viewable and editable in Settings
+- [x] Can create an Exercise with name and equipment, and it persists
+- [x] Smallest weight step is chosen from chips, not typed
+- [x] Rep range and rest category default by exercise kind and are editable
+- [x] Exercises with the same name but different equipment coexist as distinct Exercises
+- [x] Exercise list is viewable and editable in Settings
