@@ -65,7 +65,7 @@ export function replay(sessions: LegacySession[], unit: Unit = 'lb'): { rows: Re
     for (let i = 0; i < history.length; i++) {
       const actual = toExposures([history[i]], exercise, unit)[0]
       if (!actual) continue
-      const s = suggest({ exercise, history: history.slice(0, i), unit })
+      const s = suggest({ exercise, history: history.slice(0, i), unit, now: history[i].startedAt })
       const delta = s.weight ? (actual.weight - s.weight) / s.weight : null
       rows.push({
         date: history[i].date,

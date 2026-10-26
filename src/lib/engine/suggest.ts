@@ -1,7 +1,7 @@
 import { fmtWeight, roundTo, stepIn } from '../units'
 import { CFG } from './config'
 import { toExposures, type Exposure } from './exposure'
-import { analyze, isStall, noviceTarget, repDrop, type Analysis } from './stages'
+import { analyze, isStall, layoffState, noviceTarget, repDrop, type Analysis } from './stages'
 import { midReps, progressionStep } from './util'
 import type { EngineExercise, Stage, SuggestInput, Suggestion } from './types'
 import type { Unit } from '../db'
@@ -143,11 +143,46 @@ function earlyInt(ex: EngineExercise, a: Analysis, unit: Unit): Suggestion {
   return { ...dp, rule: 'stall-repeat', reason: `Stalled once at ${fmtWeight(dp.weight ?? 0, unit)}: repeat it and look for a cause. ${dp.reason}` }
 }
 
+/** After a layoff: 87.5% of the last working weight, stepping back to full load over up to 3 Sessions. */
+function reRamp(ex: EngineExercise, a: Analysis, unit: Unit, state: { preWeight: number; m: number }): Suggestion | undefined {
+  const factor = CFG.reRamp.factors[state.m]
+  const step = stepIn(ex, unit)
+  const target = roundTo(state.preWeight * factor, step)
+  if (state.m > 0 && a.last.weight >= target) return undefined // already back at or above the ramp: normal rules
+  return {
+    weight: target,
+    unit,
+    stage: a.stage,
+    reps: midReps(ex),
+    rule: 're-ramp',
+    reason:
+      state.m === 0
+        ? `Back after a layoff: start at ${Math.round(factor * 1000) / 10}% of ${fmtWeight(state.preWeight, unit)} and build back over ${CFG.reRamp.factors.length} sessions. No stalls count.`
+        : `Re-ramp, session ${state.m + 1} of ${CFG.reRamp.factors.length}: ${Math.round(factor * 1000) / 10}% of ${fmtWeight(state.preWeight, unit)}. No stalls count.`,
+  }
+}
+
 export function suggest(input: SuggestInput): Suggestion {
-  const { exercise, history, unit } = input
+  const { exercise, unit } = input
+  const now = input.now ?? Date.now()
+  const deloads = input.deloads ?? []
+  const inDeload = (t: number) => deloads.some((d) => t >= d.from && t <= d.until)
+  // Sessions done during a deload say nothing about working loads.
+  const history = input.history.filter((h) => !inDeload(h.startedAt))
   const exposures = toExposures(history, exercise, unit)
   if (exposures.length === 0) return noHistory(exercise, unit)
   if (exposures.length < CFG.calibrationExposures) return calibration(exercise, exposures, unit)
-  const a = analyze(exercise, exposures, unit)
-  return a.stage === 'NOVICE' ? novice(exercise, a, unit) : earlyInt(exercise, a, unit)
+
+  const lastDeloadEnd = Math.max(-Infinity, ...deloads.filter((d) => d.until < now).map((d) => d.until))
+  const a = analyze(exercise, exposures, unit, lastDeloadEnd)
+  const layoff = layoffState(exposures, now)
+  let s = (layoff && reRamp(exercise, a, unit, layoff)) || (a.stage === 'NOVICE' ? novice(exercise, a, unit) : earlyInt(exercise, a, unit))
+
+  const active = deloads.find((d) => now >= d.from && now <= d.until)
+  if (active && s.weight !== null) {
+    const step = stepIn(exercise, unit)
+    const to = Math.min(roundTo(s.weight * CFG.deload.loadFactor, step), s.weight)
+    s = { ...s, weight: to, rule: 'deload', reason: `Deload week: ${Math.round(CFG.deload.loadFactor * 100)}% load at ${fmtWeight(to, unit)}, half the sets, stop with reps in reserve.` }
+  }
+  return s
 }

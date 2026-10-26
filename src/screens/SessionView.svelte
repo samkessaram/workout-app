@@ -2,10 +2,11 @@
   import { liveQuery } from 'dexie'
   import { db, type Routine } from '../lib/db'
   import { exerciseLabel } from '../lib/exercises'
-  import { exerciseHistory, type ExerciseSession } from '../lib/history'
+  import { applyBaseline, exerciseHistory, type ExerciseSession } from '../lib/history'
   import { onDestroy, onMount, untrack } from 'svelte'
-  import { buildBrief, logSuggestion, suggestionFor, type Brief as BriefData } from '../lib/coach'
+  import { activeDeload, buildBrief, getDeloads, logSuggestion, suggestionFor, type Brief as BriefData } from '../lib/coach'
   import type { Suggestion } from '../lib/engine/types'
+  import { CFG } from '../lib/engine/config'
   import { prefs } from '../lib/settings.svelte'
   import { flagsRelevantTo, openFlags, stoppedInSession } from '../lib/pain'
   import { setExerciseNote, toggleExerciseChip } from '../lib/chips'
@@ -44,6 +45,8 @@
   $effect(() => {
     const id = currentId
     const on = coaching
+    const answer = id === null ? undefined : $session?.baselineAnswers?.[id]
+    void answer // a baseline answer changes which history applies, so re-ask the engine
     suggestion = undefined
     if (id === null || !on) return
     const s = untrack(() => $session)
@@ -64,11 +67,21 @@
     buildBrief(s, untrack(() => prefs.unit)).then((b) => (brief = b))
   })
 
+  // Unfiltered history feeds the baseline question; the Baseline split decides what chips and Suggestions use.
+  let allHistory = $state<ExerciseSession[]>([])
   $effect(() => {
     const id = currentId
-    history = []
-    if (id !== null) exerciseHistory(id, db, { excludeSessionId: sessionId }).then((h) => (history = h))
+    allHistory = []
+    if (id !== null) exerciseHistory(id, db, { excludeSessionId: sessionId }).then((h) => (allHistory = h))
   })
+  $effect(() => {
+    const s = $session
+    const id = currentId
+    history = s && id !== null ? applyBaseline(allHistory, s.location, s.baselineAnswers?.[id] === 'new') : []
+  })
+
+  let deloadActive = $state(false)
+  onMount(async () => (deloadActive = !!activeDeload(await getDeloads(), $session?.startedAt ?? Date.now())))
 
   let routine = $state<Routine | undefined>()
   let prompt = $state<{ routine: Routine; diff: RoutineDiff } | null>(null)
@@ -84,7 +97,8 @@
     const entry = routine?.entries.find((e) => e.exerciseId === currentId)
     return ex && entry ? { ...ex, repMin: entry.repMin, repMax: entry.repMax, restCategory: entry.restCategory } : ex
   })
-  const targetSets = $derived(routine?.entries.find((e) => e.exerciseId === currentId)?.targetSets)
+  const plannedSets = $derived(routine?.entries.find((e) => e.exerciseId === currentId)?.targetSets)
+  const targetSets = $derived(plannedSets && deloadActive ? Math.max(1, Math.ceil(plannedSets * CFG.deload.setFactor)) : plannedSets)
 
   const remaining = $derived(($session?.exerciseIds ?? []).filter((id) => setsFor($session!, id).length === 0))
   const finished = $derived(($session?.exerciseIds ?? []).filter((id) => setsFor($session!, id).length > 0))
@@ -124,7 +138,7 @@
     </div>
     {#if targetSets}
       <p class="muted">
-        Target {targetSets} × {current.repMin}-{current.repMax} ·
+        {deloadActive ? 'Deload: ' : ''}Target {targetSets} × {current.repMin}-{current.repMax} ·
         {workingSets(setsFor($session, current.id!)).length} done
       </p>
     {/if}
@@ -143,7 +157,7 @@
       onnote={(t) => setExerciseNote(sessionId, current.id!, t)}
     />
     {#key current.id}
-      <SetLogger exercise={current} session={$session} {history} {routine} {suggestion} />
+      <SetLogger exercise={current} session={$session} {history} {allHistory} {routine} {suggestion} />
     {/key}
     <button class="btn block" style="margin-top:1rem" onclick={() => (currentId = null)}>Next Exercise ›</button>
   {:else}

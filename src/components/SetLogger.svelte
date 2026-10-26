@@ -5,9 +5,11 @@
   import { startRest } from '../lib/rest.svelte'
   import type { Suggestion } from '../lib/engine/types'
   import { recordActual } from '../lib/coach'
-  import { addSet, setsFor } from '../lib/sessions'
+  import { CFG } from '../lib/engine/config'
+  import { needsBaselineQuestion } from '../lib/history'
+  import { addSet, answerBaseline, setsFor, workingSets } from '../lib/sessions'
   import { prefs } from '../lib/settings.svelte'
-  import { fmtWeight, stepIn } from '../lib/units'
+  import { convert, fmtWeight, stepIn } from '../lib/units'
   import Chips from './Chips.svelte'
   import SetRow from './SetRow.svelte'
   import Strip from './Strip.svelte'
@@ -18,12 +20,15 @@
     history,
     suggestion,
     routine,
+    allHistory = [],
   }: {
     exercise: Exercise
     session: Session
     history: ExerciseSession[]
     suggestion?: Suggestion
     routine?: Routine
+    /** Unfiltered history (no Baseline split), for the once-per-Location baseline question. */
+    allHistory?: ExerciseSession[]
   } = $props()
 
   const unit = $derived(prefs.unit)
@@ -39,6 +44,7 @@
   let pickedReps = $state<number | undefined>()
   let warmup = $state(false)
   let error = $state('')
+  let askBaseline = $state(false)
 
   const weight = $derived(pickedWeight ?? chips.recommended ?? 0)
   const repCount = $derived(pickedReps ?? recReps)
@@ -46,6 +52,7 @@
 
   async function log() {
     try {
+      const firstWorking = !warmup && workingSets(setsFor(session, exercise.id!)).length === 0
       const added = await addSet(session.id!, { exerciseId: exercise.id!, weight, unit, reps: repCount, warmup })
       const secs = restFor({ ...session, sets: [...session.sets, added] }, routine, added, exercise.restCategory)
       if (secs !== null) startRest(secs)
@@ -53,6 +60,16 @@
       pickedReps = repCount
       warmup = false
       error = ''
+      if (firstWorking && suggestion) {
+        askBaseline = needsBaselineQuestion({
+          history: allHistory,
+          location: session.location,
+          suggestedWeight: suggestion.weight,
+          firstSetWeight: convert(added.weight, added.unit, suggestion.unit),
+          alreadyAnswered: session.baselineAnswers?.[exercise.id!] !== undefined,
+          threshold: CFG.baselineDeviation,
+        })
+      }
       await recordActual(session.id!, exercise.id!, db)
     } catch (e) {
       error = e instanceof Error ? e.message : String(e)
@@ -100,6 +117,16 @@
     </button>
   </div>
   {#if error}<p class="error" role="alert">{error}</p>{/if}
+
+  {#if askBaseline}
+    <div class="card stack" role="alertdialog">
+      <div>That was well off the Suggestion, and it's your first time on this Exercise at <strong>{session.location}</strong>.</div>
+      <div class="row">
+        <button class="btn grow" onclick={() => { askBaseline = false; answerBaseline(session.id!, exercise.id!, 'same') }}>Same as before</button>
+        <button class="btn primary grow" onclick={() => { askBaseline = false; answerBaseline(session.id!, exercise.id!, 'new') }}>Feels different (new baseline here)</button>
+      </div>
+    </div>
+  {/if}
 
   {#if logged.length}
     <div class="card">

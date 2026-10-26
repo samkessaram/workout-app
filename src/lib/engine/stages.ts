@@ -61,6 +61,33 @@ export function e1rmSlopePctPerWeek(exposures: Exposure[]): number | undefined {
   return ((num / den) * 7) / my
 }
 
+/** Indexes of the Sessions back after a layoff (the first few after each gap), which never count as Stalls. */
+export function rampIndexes(exposures: Exposure[]): Set<number> {
+  const out = new Set<number>()
+  for (let j = 1; j < exposures.length; j++) {
+    const gap = (exposures[j].session.startedAt - exposures[j - 1].session.startedAt) / DAY
+    if (gap >= CFG.reRamp.layoffDays) for (let k = 0; k < CFG.reRamp.factors.length; k++) out.add(j + k)
+  }
+  return out
+}
+
+/**
+ * Where the lifter is in a re-ramp: `m` Sessions already done since the layoff (0 = first Session back),
+ * and the weight the layoff interrupted.
+ */
+export function layoffState(exposures: Exposure[], now: number): { preWeight: number; m: number } | undefined {
+  const n = exposures.length
+  const last = exposures[n - 1]
+  if ((now - last.session.startedAt) / DAY >= CFG.reRamp.layoffDays) return { preWeight: last.weight, m: 0 }
+  for (let j = n - 1; j >= 1; j--) {
+    const gap = (exposures[j].session.startedAt - exposures[j - 1].session.startedAt) / DAY
+    if (gap >= CFG.reRamp.layoffDays) {
+      const m = n - j
+      return m < CFG.reRamp.factors.length ? { preWeight: exposures[j - 1].weight, m } : undefined
+    }
+  }
+}
+
 export interface Analysis {
   stage: Stage
   /** Consecutive counted Stalls ending at the latest exposure. Confounded Stalls neither count nor break the run. */
@@ -71,13 +98,15 @@ export interface Analysis {
   lastStalled: boolean
   last: Exposure
   prev?: Exposure
+  /** Every Stall that counted (not confounded, not during a re-ramp), oldest first. */
+  counted: Exposure[]
 }
 
 /**
  * Replays the exposures in order to find the current Stage and Stall run. Stage is sticky:
  * once a lift leaves NOVICE it does not return.
  */
-export function analyze(ex: EngineExercise, exposures: Exposure[], unit: Unit): Analysis {
+export function analyze(ex: EngineExercise, exposures: Exposure[], unit: Unit, runResetAt = -Infinity): Analysis {
   void unit
   const cal = CFG.calibrationExposures
   const compound = isCompoundKind(ex)
@@ -86,15 +115,25 @@ export function analyze(ex: EngineExercise, exposures: Exposure[], unit: Unit): 
   let ignored: string | undefined
   let lastStalled = false
   const resets: number[] = []
+  const counted: Exposure[] = []
+  const ramp = rampIndexes(exposures)
 
   for (let i = cal; i < exposures.length; i++) {
     const cur = exposures[i]
+    // Sessions back after a layoff, and anything up to the end of a deload, never count as Stalls.
+    if (ramp.has(i) || cur.session.startedAt <= runResetAt) {
+      run = 0
+      ignored = undefined
+      lastStalled = false
+      continue
+    }
     const stalled = isStall(stage, ex, cur, exposures[i - 1])
     ignored = undefined
     if (!stalled) run = 0
     else if (hasConfounder(cur.session.chips)) ignored = cur.session.chips.find(isConfounder)
     else {
       run++
+      counted.push(cur)
       if (stage === 'NOVICE' && run === 2) resets.push(cur.session.startedAt)
     }
     lastStalled = stalled
@@ -114,5 +153,5 @@ export function analyze(ex: EngineExercise, exposures: Exposure[], unit: Unit): 
     }
   }
   const last = exposures[exposures.length - 1]
-  return { stage, run, ignored, lastStalled, last, prev: exposures[exposures.length - 2] }
+  return { stage, run, ignored, lastStalled, last, prev: exposures[exposures.length - 2], counted }
 }

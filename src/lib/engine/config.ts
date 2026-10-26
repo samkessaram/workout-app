@@ -45,4 +45,27 @@ export const CFG = {
   swapDropPct: 0.05,
   /** A rep drop of this many reps from first to last Set, on a stalled exposure, jumps to the third rung. */
   repDropToSwap: 2,
+
+  reRamp: {
+    /** A gap this long on an Exercise starts a re-ramp. */
+    layoffDays: 21,
+    /** Share of the last working weight for each Session back; the last entry is full load. Then normal rules resume. */
+    factors: [0.875, 0.9375, 1.0],
+  },
+  deload: {
+    /** Reactive trigger: this many stalled Exercises for one muscle within the window. */
+    stalledLiftsSameMuscle: 3,
+    windowDays: 14,
+    /** Reactive trigger: average reps this far below the 4-week best at the same weight. */
+    repDropPct: 0.15,
+    bestWindowDays: 28,
+    /** What an accepted deload does. */
+    days: 7,
+    setFactor: 0.5,
+    loadFactor: 0.9,
+    /** After a dismissal, do not suggest again for this long. */
+    snoozeDays: 14,
+  },
+  /** An Exercise at a new Location that differs this much from the Suggestion triggers the baseline question. */
+  baselineDeviation: 0.15,
 }

@@ -11,6 +11,8 @@ export interface ExerciseSession {
   sets: SessionSet[]
   /** Exercise-level and Set-level chips, merged. */
   chips: string[]
+  /** The lifter's answer to the baseline question for this Exercise in that Session, if asked. */
+  baseline?: 'same' | 'new'
 }
 
 export async function exerciseHistory(
@@ -32,6 +34,7 @@ export async function exerciseHistory(
         trainer: s.trainer,
         sets,
         chips: [...new Set(chips)],
+        baseline: s.baselineAnswers?.[exerciseId],
       }
     })
     .filter((h) => h.sets.length > 0)
@@ -73,4 +76,33 @@ export function repChips(repMin: number, repMax: number): number[] {
   const picked = new Set<number>()
   for (let i = 0; i < 6; i++) picked.add(all[Math.round((i * (all.length - 1)) / 5)])
   return [...picked]
+}
+
+/**
+ * History is shared across Locations unless the lifter said an Exercise "feels different" at one.
+ * Such a Location gets its own Baseline; every other Location ignores its Sessions.
+ * `splitHere` applies a "feels different" answer given earlier in the Session being planned.
+ */
+export function applyBaseline(history: ExerciseSession[], location: string, splitHere = false): ExerciseSession[] {
+  const split = new Set(history.filter((h) => h.baseline === 'new').map((h) => h.location))
+  if (splitHere) split.add(location)
+  return split.has(location) ? history.filter((h) => h.location === location) : history.filter((h) => !split.has(h.location))
+}
+
+/**
+ * Ask once, the first time an Exercise is done at a Location: when the first Set deviates from the
+ * Suggestion by the configured share or more. `history` is unfiltered and excludes the open Session.
+ */
+export function needsBaselineQuestion(args: {
+  history: ExerciseSession[]
+  location: string
+  suggestedWeight: number | null | undefined
+  firstSetWeight: number
+  alreadyAnswered: boolean
+  threshold: number
+}): boolean {
+  const { history, location, suggestedWeight, firstSetWeight, alreadyAnswered, threshold } = args
+  if (alreadyAnswered || !suggestedWeight) return false
+  if (history.some((h) => h.location === location)) return false
+  return Math.abs(firstSetWeight - suggestedWeight) / suggestedWeight >= threshold
 }

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Brief } from '../lib/coach'
+  import { acceptDeload, dismissDeload, type Brief } from '../lib/coach'
   import type { Exercise } from '../lib/db'
   import { exerciseLabel } from '../lib/exercises'
   import { setsFor, workingSets } from '../lib/sessions'
@@ -15,6 +15,22 @@
 
 <div class="card stack">
   <strong>Brief</strong>
+
+  {#if brief.deload?.active}
+    <div class="card">
+      <strong>Deload week</strong> until {new Date(brief.deload.active.until).toLocaleDateString('en-CA')}:
+      about 90% of your usual loads and half the sets.
+    </div>
+  {:else if brief.deload?.advice}
+    <div class="card stack" role="alert">
+      <div><strong>Consider a deload week.</strong> {brief.deload.advice.reason}</div>
+      <div class="muted">One week, half the sets, about 90% load. Your call.</div>
+      <div class="row">
+        <button class="btn grow" onclick={async () => { await dismissDeload(); brief.deload = undefined }}>Not now</button>
+        <button class="btn primary grow" onclick={async () => { await acceptDeload(); location.reload() }}>Start deload</button>
+      </div>
+    </div>
+  {/if}
 
   {#if brief.flags.length}
     <div>

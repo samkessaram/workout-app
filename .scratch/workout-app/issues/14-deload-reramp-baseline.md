@@ -6,8 +6,8 @@
 
 **Status:** ready-for-agent
 
-- [ ] Deload suggestion appears under each trigger and can be dismissed or accepted
-- [ ] Re-ramp starts at 87.5% after a 21+ day gap and returns to normal within 3 Sessions
-- [ ] No Stall is counted during a re-ramp
-- [ ] The Location deviation prompt appears once and its answer is respected afterwards
-- [ ] All three behaviours have unit tests and show a one-line reason
+- [x] Deload suggestion appears under each trigger and can be dismissed or accepted
+- [x] Re-ramp starts at 87.5% after a 21+ day gap and returns to normal within 3 Sessions
+- [x] No Stall is counted during a re-ramp
+- [x] The Location deviation prompt appears once and its answer is respected afterwards
+- [x] All three behaviours have unit tests and show a one-line reason

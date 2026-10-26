@@ -128,3 +128,10 @@ export function setsFor(s: Session, exerciseId: number): SessionSet[] {
 export function workingSets(sets: SessionSet[]): SessionSet[] {
   return sets.filter((x) => !x.warmup)
 }
+
+/** The lifter's answer to "same as before / feels different (new baseline here)". */
+export async function answerBaseline(sessionId: number, exerciseId: number, answer: 'same' | 'new', store = db) {
+  await mutate(sessionId, store, (s) => {
+    s.baselineAnswers = { ...s.baselineAnswers, [exerciseId]: answer }
+  })
+}

@@ -38,6 +38,8 @@ export interface SuggestInput {
   now?: number
   /** Location of the Session being planned. */
   location?: string
+  /** Past and current deload windows, in epoch ms. Sessions inside one are ignored; inside the current one loads drop. */
+  deloads?: { from: number; until: number }[]
 }
 
 export interface Suggestion {

@@ -18,7 +18,8 @@ function weekly(rows: [number, number[], string[]?][], startDay = 0): EngineSess
     sets: reps.map((r) => ({ weight: w, unit: 'lb' as const, reps: r, warmup: false })),
   }))
 }
-const ask = (exercise: EngineExercise, history: EngineSession[]) => suggest({ exercise, history, unit: 'lb' })
+const ask = (exercise: EngineExercise, history: EngineSession[]) =>
+  suggest({ exercise, history, unit: 'lb', now: (history.at(-1)?.startedAt ?? 0) + DAY })
 const ok = (w: number): [number, number[]] => [w, [8, 8, 8]]
 // A miss without a rep drop of 2+ across sets, so it climbs the ladder one rung at a time.
 const miss = (w: number): [number, number[]] => [w, [8, 7, 7]]

@@ -83,4 +83,54 @@ describe('SetLogger', () => {
     // The timer must survive an app kill, so it has to reach IndexedDB.
     await waitFor(async () => expect(await getSetting('restTimer', null)).toMatchObject({ total: 90 }))
   })
+
+  describe('baseline question', () => {
+    const suggestion = { weight: 180, unit: 'lb' as const, reps: 10, reason: 'test', rule: 'dp-hold', stage: 'EARLY_INT' as const }
+
+    async function atNewGym(chooseWeight: string) {
+      const { exId } = await setup()
+      const sid = await startSession({ type: 'lower', location: 'new gym', trainer: false, timer: false })
+      const exercise = (await db.exercises.get(exId))!
+      const history = await exerciseHistory(exId, db, { excludeSessionId: sid })
+      render(SetLogger, { exercise, session: (await db.sessions.get(sid))!, history, allHistory: history, suggestion })
+      await fireEvent.click(screen.getByRole('button', { name: new RegExp(`^${chooseWeight} lb`) }))
+      await fireEvent.click(screen.getByRole('button', { name: /Log set/ }))
+      return sid
+    }
+
+    it('asks once when the first Set at a new Location is 15%+ off, and stores the answer', async () => {
+      // 180 suggested; the step-down chip is 175 (2.8% off), so reach 150 with the strip's +/-.
+      const { exId } = await setup()
+      const sid = await startSession({ type: 'lower', location: 'new gym', trainer: false, timer: false })
+      const exercise = (await db.exercises.get(exId))!
+      const history = await exerciseHistory(exId, db, { excludeSessionId: sid })
+      render(SetLogger, { exercise, session: (await db.sessions.get(sid))!, history, allHistory: history, suggestion })
+      for (let i = 0; i < 6; i++) await fireEvent.click(screen.getAllByRole('button', { name: 'Decrease' })[0]) // 180 -> 150
+      await fireEvent.click(screen.getByRole('button', { name: /Log set · 150 lb/ }))
+      await screen.findByText(/first time on this Exercise at/)
+      await fireEvent.click(screen.getByRole('button', { name: /Feels different/ }))
+      await waitFor(async () => expect((await db.sessions.get(sid))!.baselineAnswers).toEqual({ [exId]: 'new' }))
+      expect(screen.queryByText(/first time on this Exercise at/)).toBeNull()
+    })
+
+    it('does not ask when the Set is close to the Suggestion', async () => {
+      const sid = await atNewGym('175')
+      await waitFor(async () => expect((await db.sessions.get(sid))!.sets).toHaveLength(1))
+      await new Promise((r) => setTimeout(r, 50))
+      expect(screen.queryByText(/first time on this Exercise at/)).toBeNull()
+    })
+
+    it('does not ask at a Location where the Exercise was done before', async () => {
+      const { exId } = await setup()
+      const sid = await startSession({ type: 'lower', location: 'gym', trainer: false, timer: false })
+      const exercise = (await db.exercises.get(exId))!
+      const history = await exerciseHistory(exId, db, { excludeSessionId: sid })
+      render(SetLogger, { exercise, session: (await db.sessions.get(sid))!, history, allHistory: history, suggestion })
+      for (let i = 0; i < 6; i++) await fireEvent.click(screen.getAllByRole('button', { name: 'Decrease' })[0])
+      await fireEvent.click(screen.getByRole('button', { name: /Log set · 150 lb/ }))
+      await waitFor(async () => expect((await db.sessions.get(sid))!.sets).toHaveLength(1))
+      await new Promise((r) => setTimeout(r, 50))
+      expect(screen.queryByText(/first time on this Exercise at/)).toBeNull()
+    })
+  })
 })

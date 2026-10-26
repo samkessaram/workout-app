@@ -26,7 +26,7 @@ const straight = (w: number, reps: number[]) => sess(reps.map((r) => [w, r] as [
 const calibrated = (w: number, reps: number[]) => [straight(w, reps), straight(w, reps), straight(w, reps)]
 
 const ask = (exercise: EngineExercise, history: EngineSession[], unit: 'lb' | 'kg' = 'lb') =>
-  suggest({ exercise, history, unit })
+  suggest({ exercise, history, unit, now: (history.at(-1)?.startedAt ?? 0) + 86_400_000 })
 
 describe('missing history', () => {
   it('has no weight, says so, and never invents a number', () => {

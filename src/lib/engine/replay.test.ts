@@ -20,8 +20,9 @@ describe('replay harness', () => {
     // the same call the app makes, on the same prefix of history, gives the same answer
     const direct = suggest({
       exercise: { kind: 'machine', step: 5, stepUnit: 'lb', repMin: 8, repMax: 12 },
-      history: [1, 2, 3].map((n) => ({ sessionId: n, date: day(n), startedAt: n, location: 'gym', chips: [], sets: [12, 12, 12].map((reps) => ({ weight: 100, unit: 'lb' as const, reps, warmup: false })) })),
+      history: [1, 2, 3].map((n) => ({ sessionId: n, date: day(n), startedAt: new Date(`${day(n)}T12:00:00`).getTime(), location: 'gym', chips: [], sets: [12, 12, 12].map((reps) => ({ weight: 100, unit: 'lb' as const, reps, warmup: false })) })),
       unit: 'lb',
+      now: new Date(`${day(4)}T12:00:00`).getTime(),
     })
     expect(rows[3].suggested.weight).toBe(direct.weight)
   })
