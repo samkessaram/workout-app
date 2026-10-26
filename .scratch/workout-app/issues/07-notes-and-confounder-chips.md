@@ -6,7 +6,7 @@
 
 **Status:** ready-for-agent
 
-- [ ] Note and confounder chips can be attached to a Set or an Exercise in one tap
-- [ ] Custom chips can be added and removed in Settings and appear in the picker
-- [ ] Optional free text can be added but nothing requires it
-- [ ] Confounder chips are stored in a form the coaching engine can read
+- [x] Note and confounder chips can be attached to a Set or an Exercise in one tap
+- [x] Custom chips can be added and removed in Settings and appear in the picker
+- [x] Optional free text can be added but nothing requires it
+- [x] Confounder chips are stored in a form the coaching engine can read

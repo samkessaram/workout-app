@@ -4,11 +4,13 @@
   import { exerciseLabel } from '../lib/exercises'
   import { exerciseHistory, type ExerciseSession } from '../lib/history'
   import { onDestroy, onMount } from 'svelte'
+  import { setExerciseNote, toggleExerciseChip } from '../lib/chips'
   import { holdWakeLock } from '../lib/feedback'
   import { clearRest } from '../lib/rest.svelte'
   import { diffIsEmpty, getRoutine, routineDiff, type RoutineDiff } from '../lib/routines'
   import { addExerciseToSession, closeSession, setsFor, workingSets } from '../lib/sessions'
   import ExercisePicker from '../components/ExercisePicker.svelte'
+  import NoteChips from '../components/NoteChips.svelte'
   import RestTimer from '../components/RestTimer.svelte'
   import RoutinePrompt from '../components/RoutinePrompt.svelte'
   import SetLogger from '../components/SetLogger.svelte'
@@ -90,6 +92,13 @@
         {workingSets(setsFor($session, current.id!)).length} done
       </p>
     {/if}
+    <NoteChips
+      summary="Exercise notes"
+      chips={$session.exerciseChips?.[current.id!] ?? []}
+      note={$session.exerciseNotes?.[current.id!] ?? ''}
+      ontoggle={(c) => toggleExerciseChip(sessionId, current.id!, c)}
+      onnote={(t) => setExerciseNote(sessionId, current.id!, t)}
+    />
     {#key current.id}
       <SetLogger exercise={current} session={$session} {history} {routine} />
     {/key}

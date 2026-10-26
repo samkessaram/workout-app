@@ -1,9 +1,11 @@
 <script lang="ts">
   import type { Exercise, SessionSet } from '../lib/db'
   import { stepIn } from '../lib/history'
+  import { setSetNote, toggleSetChip } from '../lib/chips'
   import { correctSet } from '../lib/sessions'
   import { prefs } from '../lib/settings.svelte'
   import { convert, fmtWeight, roundTo } from '../lib/units'
+  import NoteChips from './NoteChips.svelte'
   import Strip from './Strip.svelte'
 
   let {
@@ -68,3 +70,12 @@
     </div>
   </div>
 {/if}
+
+<div style="margin:0.25rem 0 0.75rem">
+  <NoteChips
+    chips={set.chips ?? []}
+    note={set.note ?? ''}
+    ontoggle={(c) => toggleSetChip(sessionId, set.id, c)}
+    onnote={(t) => setSetNote(sessionId, set.id, t)}
+  />
+</div>

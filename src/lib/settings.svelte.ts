@@ -9,14 +9,24 @@ export async function setSetting(key: string, value: unknown, store = db): Promi
   await store.settings.put({ key, value })
 }
 
-export const prefs = $state<{ unit: Unit; loaded: boolean }>({ unit: 'lb', loaded: false })
+export const prefs = $state<{ unit: Unit; customChips: string[]; loaded: boolean }>({
+  unit: 'lb',
+  customChips: [],
+  loaded: false,
+})
 
 export async function loadPrefs(): Promise<void> {
   prefs.unit = await getSetting<Unit>('unit', 'lb')
+  prefs.customChips = await getSetting<string[]>('customChips', [])
   prefs.loaded = true
 }
 
 export async function setUnit(unit: Unit): Promise<void> {
   prefs.unit = unit
   await setSetting('unit', unit)
+}
+
+export async function setCustomChips(chips: string[]): Promise<void> {
+  prefs.customChips = chips
+  await setSetting('customChips', chips)
 }
