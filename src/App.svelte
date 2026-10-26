@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { loadPrefs } from './lib/settings.svelte'
+  import { autoCloseStale } from './lib/sessions'
   import Today from './screens/Today.svelte'
   import History from './screens/History.svelte'
   import Routines from './screens/Routines.svelte'
@@ -16,10 +17,16 @@
   let active = $state<(typeof tabs)[number]['id']>('today')
   const Screen = $derived(tabs.find((t) => t.id === active)!.screen)
 
-  onMount(loadPrefs)
+  // Stale Sessions must close before Today looks for an open one.
+  let ready = $state(false)
+  onMount(async () => {
+    await autoCloseStale()
+    await loadPrefs()
+    ready = true
+  })
 </script>
 
-<main><Screen /></main>
+<main>{#if ready}<Screen />{/if}</main>
 
 <nav aria-label="Main">
   {#each tabs as t}

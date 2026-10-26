@@ -1,0 +1,37 @@
+<script lang="ts">
+  import { liveQuery } from 'dexie'
+  import { db } from '../lib/db'
+  import { exerciseLabel } from '../lib/exercises'
+  import { setsFor } from '../lib/sessions'
+  import { fmtWeight } from '../lib/units'
+
+  let { sessionId, ondone }: { sessionId: number; ondone: () => void } = $props()
+
+  const data = liveQuery(async () => ({
+    session: await db.sessions.get(sessionId),
+    exercises: await db.exercises.toArray(),
+  }))
+</script>
+
+{#if $data?.session}
+  {@const s = $data.session}
+  <h1>Session done</h1>
+  <p class="muted">{s.date} · {s.type} · {s.location}{s.trainer ? ' · trainer' : ''}</p>
+  <div class="stack">
+    {#each s.exerciseIds as id (id)}
+      {@const ex = $data.exercises.find((e) => e.id === id)}
+      {@const sets = setsFor(s, id)}
+      {#if sets.length}
+        <div class="card">
+          <strong>{ex ? exerciseLabel(ex) : 'Exercise'}</strong>
+          {#each sets as x (x.id)}
+            <div>{x.warmup ? 'Warmup ' : ''}{fmtWeight(x.weight, x.unit)} × {x.reps}</div>
+          {/each}
+        </div>
+      {/if}
+    {:else}
+      <p class="muted">No sets were logged.</p>
+    {/each}
+    <button class="btn primary block" onclick={ondone}>Back to Today</button>
+  </div>
+{/if}

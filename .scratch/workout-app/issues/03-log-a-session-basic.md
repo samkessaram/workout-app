@@ -6,11 +6,11 @@
 
 **Status:** ready-for-agent
 
-- [ ] A Session can be started, Sets logged for several Exercises, and closed with a summary
-- [ ] Weight chips come from that Exercise's history; the last weight is marked recommended
-- [ ] Scroll strip and +/- move in the Exercise's smallest step; no keyboard is needed anywhere
-- [ ] A matching Set is logged in at most 2 taps
-- [ ] Warmup Sets are flagged and stored distinctly from working Sets
-- [ ] Killing the app mid-Session and reopening resumes it with all confirmed Sets
-- [ ] A Session open for over 6 hours auto-closes as it stands
-- [ ] Weights keep the unit they were entered in
+- [x] A Session can be started, Sets logged for several Exercises, and closed with a summary
+- [x] Weight chips come from that Exercise's history; the last weight is marked recommended
+- [x] Scroll strip and +/- move in the Exercise's smallest step; no keyboard is needed anywhere
+- [x] A matching Set is logged in at most 2 taps
+- [x] Warmup Sets are flagged and stored distinctly from working Sets
+- [x] Killing the app mid-Session and reopening resumes it with all confirmed Sets
+- [x] A Session open for over 6 hours auto-closes as it stands
+- [x] Weights keep the unit they were entered in

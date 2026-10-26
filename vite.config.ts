@@ -1,11 +1,13 @@
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 import { defineConfig } from 'vitest/config'
 import { VitePWA } from 'vite-plugin-pwa'
+import { svelteTesting } from '@testing-library/svelte/vite'
 
 export default defineConfig({
   base: process.env.BASE_PATH ?? '/',
   plugins: [
     svelte(),
+    svelteTesting(),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg'],
@@ -28,5 +30,6 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts'],
+    setupFiles: ['src/test-setup.ts'],
   },
 })
