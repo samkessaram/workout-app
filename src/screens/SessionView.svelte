@@ -4,12 +4,15 @@
   import { exerciseLabel } from '../lib/exercises'
   import { exerciseHistory, type ExerciseSession } from '../lib/history'
   import { onDestroy, onMount } from 'svelte'
+  import { flagsRelevantTo, openFlags, stoppedInSession } from '../lib/pain'
   import { setExerciseNote, toggleExerciseChip } from '../lib/chips'
   import { holdWakeLock } from '../lib/feedback'
   import { clearRest } from '../lib/rest.svelte'
   import { diffIsEmpty, getRoutine, routineDiff, type RoutineDiff } from '../lib/routines'
   import { addExerciseToSession, closeSession, setsFor, workingSets } from '../lib/sessions'
   import ExercisePicker from '../components/ExercisePicker.svelte'
+  import PainFlagList from '../components/PainFlagList.svelte'
+  import PainFlagPanel from '../components/PainFlagPanel.svelte'
   import NoteChips from '../components/NoteChips.svelte'
   import RestTimer from '../components/RestTimer.svelte'
   import RoutinePrompt from '../components/RoutinePrompt.svelte'
@@ -23,6 +26,7 @@
 
   const session = liveQuery(() => db.sessions.get(sessionId))
   const exercises = liveQuery(() => db.exercises.toArray())
+  const flags = liveQuery(() => openFlags(db))
 
   let currentId = $state<number | null>(null)
   let adding = $state(false)
@@ -92,6 +96,13 @@
         {workingSets(setsFor($session, current.id!)).length} done
       </p>
     {/if}
+    {#if stoppedInSession(current.id!, $session, $flags ?? [])}
+      <p class="card error" role="alert">Sharp pain flagged — you marked this movement to stop today.</p>
+    {/if}
+    <PainFlagList flags={flagsRelevantTo(current, $flags ?? [])} title="Open Pain flags here" />
+    <div class="row" style="margin:0.5rem 0">
+      <PainFlagPanel exercise={current} />
+    </div>
     <NoteChips
       summary="Exercise notes"
       chips={$session.exerciseChips?.[current.id!] ?? []}

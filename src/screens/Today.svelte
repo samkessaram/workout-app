@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { getActiveSession } from '../lib/sessions'
+  import PainFlagList from '../components/PainFlagList.svelte'
   import SessionSummary from '../components/SessionSummary.svelte'
   import StartForm from '../components/StartForm.svelte'
   import SessionView from './SessionView.svelte'
@@ -30,4 +31,5 @@
 {:else}
   <h1>Today</h1>
   <StartForm onstarted={(id) => (activeId = id)} />
+  <PainFlagList />
 {/if}
