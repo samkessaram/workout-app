@@ -73,6 +73,8 @@ export interface Session {
   /** Per-Location baseline answers: `${exerciseId}` -> 'same' | 'new'. */
   baselineAnswers?: Record<number, 'same' | 'new'>
   nextTargets?: { exerciseId: number; text: string }[]
+  /** Set on imported legacy Sessions so re-importing the same export skips them. */
+  legacyKey?: string
 }
 
 export interface PainFlag {

@@ -6,10 +6,10 @@
 
 **Status:** ready-for-agent
 
-- [ ] Importing a legacy export creates Sessions with Sets in the app's format and original units
-- [ ] Each legacy variant listed above is handled, with tests using synthetic fixtures
-- [ ] Unmatched names go through a tap-only review screen to map or create Exercises
-- [ ] Re-importing the same export does not duplicate Sessions
-- [ ] Initial Routines are seeded from the imported history and are editable
-- [ ] Records that cannot be parsed are reported, not silently dropped
-- [ ] The real export stays out of the public repo (gitignored under `fixtures/private/`); committed tests use small synthetic fixtures that cover each legacy variant
+- [x] Importing a legacy export creates Sessions with Sets in the app's format and original units
+- [x] Each legacy variant listed above is handled, with tests using synthetic fixtures
+- [x] Unmatched names go through a tap-only review screen to map or create Exercises
+- [x] Re-importing the same export does not duplicate Sessions
+- [x] Initial Routines are seeded from the imported history and are editable
+- [x] Records that cannot be parsed are reported, not silently dropped
+- [x] The real export stays out of the public repo (gitignored under `fixtures/private/`); committed tests use small synthetic fixtures that cover each legacy variant

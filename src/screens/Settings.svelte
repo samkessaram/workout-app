@@ -2,14 +2,17 @@
   import { prefs, setUnit } from '../lib/settings.svelte'
   import BackupNudge from '../components/BackupNudge.svelte'
   import Backup from './Backup.svelte'
+  import LegacyImport from './LegacyImport.svelte'
   import ChipSettings from './ChipSettings.svelte'
   import ExerciseLibrary from './ExerciseLibrary.svelte'
 
-  let view = $state<'main' | 'exercises' | 'chips' | 'backup'>('main')
+  let view = $state<'main' | 'exercises' | 'chips' | 'backup' | 'legacy'>('main')
 </script>
 
 {#if view === 'exercises'}
   <ExerciseLibrary onback={() => (view = 'main')} />
+{:else if view === 'legacy'}
+  <LegacyImport onback={() => (view = 'main')} />
 {:else if view === 'backup'}
   <Backup onback={() => (view = 'main')} />
 {:else if view === 'chips'}
@@ -30,7 +33,10 @@
 
 <section>
   <h2>Data</h2>
-  <button class="btn block" onclick={() => (view = 'backup')}>Export / restore ›</button>
+  <div class="stack">
+    <button class="btn block" onclick={() => (view = 'backup')}>Export / restore ›</button>
+    <button class="btn block" onclick={() => (view = 'legacy')}>Import old S3 history ›</button>
+  </div>
 </section>
 
 <section>
