@@ -1,0 +1,4 @@
+example-skill.md
+# personal workout data (legacy S3 export and anything derived from it)
+fixtures/private/
+*.private.json
