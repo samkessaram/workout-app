@@ -3,13 +3,21 @@
   import { db, type Routine } from '../lib/db'
   import { exerciseLabel } from '../lib/exercises'
   import { exerciseHistory, type ExerciseSession } from '../lib/history'
+  import { onDestroy, onMount } from 'svelte'
+  import { holdWakeLock } from '../lib/feedback'
+  import { clearRest } from '../lib/rest.svelte'
   import { diffIsEmpty, getRoutine, routineDiff, type RoutineDiff } from '../lib/routines'
   import { addExerciseToSession, closeSession, setsFor, workingSets } from '../lib/sessions'
   import ExercisePicker from '../components/ExercisePicker.svelte'
+  import RestTimer from '../components/RestTimer.svelte'
   import RoutinePrompt from '../components/RoutinePrompt.svelte'
   import SetLogger from '../components/SetLogger.svelte'
 
   let { sessionId, onclosed }: { sessionId: number; onclosed: () => void } = $props()
+
+  let releaseWakeLock = () => {}
+  onMount(() => (releaseWakeLock = holdWakeLock()))
+  onDestroy(() => releaseWakeLock())
 
   const session = liveQuery(() => db.sessions.get(sessionId))
   const exercises = liveQuery(() => db.exercises.toArray())
@@ -51,6 +59,7 @@
 
   async function close() {
     const closed = await closeSession(sessionId)
+    clearRest()
     const r = await getRoutine(closed.type)
     const diff = r ? routineDiff(r, closed) : undefined
     if (r && diff && !diffIsEmpty(diff)) prompt = { routine: r, diff }
@@ -66,6 +75,8 @@
     <button class="btn" onclick={close}>Done for today</button>
   </div>
 
+  <RestTimer />
+
   {#if adding}
     <h2>Add Exercise</h2>
     <ExercisePicker exclude={$session.exerciseIds} onpick={addExercise} oncancel={() => (adding = false)} />
@@ -80,7 +91,7 @@
       </p>
     {/if}
     {#key current.id}
-      <SetLogger exercise={current} session={$session} {history} />
+      <SetLogger exercise={current} session={$session} {history} {routine} />
     {/key}
     <button class="btn block" style="margin-top:1rem" onclick={() => (currentId = null)}>Next Exercise ›</button>
   {:else}

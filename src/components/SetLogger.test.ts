@@ -6,6 +6,7 @@ import { exerciseHistory } from '../lib/history'
 import { addSet, closeSession, startSession } from '../lib/sessions'
 import { newExercise, saveExercise } from '../lib/exercises'
 import { prefs } from '../lib/settings.svelte'
+import { rest } from '../lib/rest.svelte'
 import SetLogger from './SetLogger.svelte'
 
 afterEach(async () => {
@@ -13,10 +14,11 @@ afterEach(async () => {
   await db.delete()
   await db.open()
   prefs.unit = 'lb'
+  rest.timer = null
 })
 
 async function setup() {
-  const exId = await saveExercise({ ...newExercise('lb'), name: 'Leg Press', equipment: 'machine', kind: 'machine', repMin: 8, repMax: 12 })
+  const exId = await saveExercise({ ...newExercise('lb'), name: 'Leg Press', equipment: 'machine', kind: 'machine', restCategory: 'moderate', repMin: 8, repMax: 12 })
   const prev = await startSession({ type: 'lower', location: 'gym', trainer: false, timer: true })
   await addSet(prev, { exerciseId: exId, weight: 180, unit: 'lb', reps: 10, warmup: false })
   await closeSession(prev)
@@ -66,5 +68,16 @@ describe('SetLogger', () => {
     const sid = await startSession({ type: 'lower', location: 'gym', trainer: false, timer: true })
     await mountLogger(exId, sid)
     expect(screen.getByText(/No history for this Exercise yet/)).toBeTruthy()
+  })
+
+  it('starts the rest timer after a working Set but not after a warmup', async () => {
+    const { exId, sid } = await setup()
+    await mountLogger(exId, sid)
+    await fireEvent.click(screen.getByRole('button', { name: 'Warmup' }))
+    await fireEvent.click(screen.getByRole('button', { name: /Log warmup/ }))
+    await waitFor(async () => expect((await db.sessions.get(sid))!.sets).toHaveLength(1))
+    expect(rest.timer).toBeNull()
+    await fireEvent.click(screen.getByRole('button', { name: /Log set/ }))
+    await waitFor(() => expect(rest.timer?.total).toBe(90)) // machine Exercise: moderate rest
   })
 })

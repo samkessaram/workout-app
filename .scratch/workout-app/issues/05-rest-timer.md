@@ -6,9 +6,9 @@
 
 **Status:** ready-for-agent
 
-- [ ] Timer starts automatically after a working Set with the right default duration
-- [ ] Timer is skipped in each of the specified cases
-- [ ] Countdown stays accurate after the app is backgrounded and resumed
-- [ ] Wake lock is held while a Session is open
-- [ ] Vibrate and beep fire at zero when the app is open
-- [ ] On return after a long gap, the actual rest elapsed is shown
+- [x] Timer starts automatically after a working Set with the right default duration
+- [x] Timer is skipped in each of the specified cases
+- [x] Countdown stays accurate after the app is backgrounded and resumed
+- [x] Wake lock is held while a Session is open
+- [x] Vibrate and beep fire at zero when the app is open
+- [x] On return after a long gap, the actual rest elapsed is shown

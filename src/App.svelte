@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { loadPrefs } from './lib/settings.svelte'
+  import { clearRest, loadRest } from './lib/rest.svelte'
   import { autoCloseStale } from './lib/sessions'
   import Today from './screens/Today.svelte'
   import History from './screens/History.svelte'
@@ -20,8 +21,9 @@
   // Stale Sessions must close before Today looks for an open one.
   let ready = $state(false)
   onMount(async () => {
-    await autoCloseStale()
+    if ((await autoCloseStale()).length) clearRest()
     await loadPrefs()
+    await loadRest()
     ready = true
   })
 </script>

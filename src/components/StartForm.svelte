@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { SessionType } from '../lib/db'
+  import { clearRest } from '../lib/rest.svelte'
   import { LOCATIONS, SESSION_TYPES, startSession } from '../lib/sessions'
   import Chips from './Chips.svelte'
 
@@ -16,6 +17,7 @@
   }
 
   async function start() {
+    clearRest()
     onstarted(await startSession({ type, location, trainer, timer }))
   }
 </script>

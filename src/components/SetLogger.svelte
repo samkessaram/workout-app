@@ -1,6 +1,8 @@
 <script lang="ts">
-  import type { Exercise, Session } from '../lib/db'
+  import type { Exercise, Routine, Session } from '../lib/db'
   import { repChips, stepIn, weightChips, type ExerciseSession } from '../lib/history'
+  import { restFor } from '../lib/rest'
+  import { startRest } from '../lib/rest.svelte'
   import { addSet, setsFor } from '../lib/sessions'
   import { prefs } from '../lib/settings.svelte'
   import { fmtWeight } from '../lib/units'
@@ -12,11 +14,13 @@
     session,
     history,
     suggestion,
+    routine,
   }: {
     exercise: Exercise
     session: Session
     history: ExerciseSession[]
     suggestion?: { weight: number; reps: number }
+    routine?: Routine
   } = $props()
 
   const unit = $derived(prefs.unit)
@@ -39,7 +43,9 @@
 
   async function log() {
     try {
-      await addSet(session.id!, { exerciseId: exercise.id!, weight, unit, reps: repCount, warmup })
+      const added = await addSet(session.id!, { exerciseId: exercise.id!, weight, unit, reps: repCount, warmup })
+      const secs = restFor({ ...session, sets: [...session.sets, added] }, routine, added, exercise.restCategory)
+      if (secs !== null) startRest(secs)
       pickedWeight = weight
       pickedReps = repCount
       warmup = false
