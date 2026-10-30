@@ -20,7 +20,7 @@ h2 { @apply text-lg font-semibold mt-5 mb-2; }
 
 .muted { @apply text-base-content/60 text-sm; }
 .label { @apply block text-base-content/60 text-sm mb-1; white-space: normal; }
-.vstack { @apply grid gap-3; }
+.vstack { @apply grid grid-cols-[minmax(0,1fr)] gap-3; }
 .row { @apply flex flex-wrap items-center gap-2; }
 .grow { flex: 1; }
 .error { @apply text-error; }
@@ -35,15 +35,15 @@ button.card { @apply w-full; }
 
 .chips { @apply flex flex-wrap gap-2; }
 .chip { @apply btn bg-base-100 border-base-300 min-h-11 h-11 rounded-full px-4 font-normal; }
-.chip.on { @apply btn-primary font-semibold; }
+.chip.on { background-color: var(--color-primary); color: var(--color-primary-content); border-color: var(--color-primary); @apply font-semibold; }
 .chip.rec::after { content: ' ★'; }
 
 .seg { @apply grid grid-cols-2 gap-2; }
 .seg button { @apply btn bg-base-100 border-base-300; }
-.seg button.on { @apply btn-primary; }
+.seg button.on { background-color: var(--color-primary); color: var(--color-primary-content); border-color: var(--color-primary); }
 
 .cell { @apply btn bg-base-100 border-base-300 flex-none min-w-17 tabular-nums; }
-.cell[aria-pressed='true'] { @apply btn-primary font-bold; }
+.cell[aria-pressed='true'] { background-color: var(--color-primary); color: var(--color-primary-content); border-color: var(--color-primary); @apply font-bold; }
 
 input[type='text'], textarea {
   @apply input w-full min-h-14 text-base;

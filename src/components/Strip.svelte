@@ -58,6 +58,7 @@
   .nudge { padding: 0; width: var(--tap); flex: none; font-size: 1.4rem; }
   .strip {
     flex: 1;
+    min-width: 0;
     display: flex;
     gap: 0.4rem;
     overflow-x: auto;
