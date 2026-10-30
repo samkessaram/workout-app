@@ -14,6 +14,8 @@ export interface Exercise {
   /** Smallest loadable jump, in `stepUnit`. */
   step: number
   stepUnit: Unit
+  /** Where to begin the first time, in `stepUnit`. Used only until the Exercise has history. */
+  startWeight?: number
   repMin: number
   repMax: number
   restCategory: RestCategory

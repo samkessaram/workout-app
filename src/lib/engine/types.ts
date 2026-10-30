@@ -24,6 +24,8 @@ export interface EngineExercise {
   kind: ExerciseKind
   step: number
   stepUnit: Unit
+  /** Lifter-chosen first weight, in `stepUnit`. */
+  startWeight?: number
   repMin: number
   repMax: number
   /** Routine target sets, if the Exercise is in a Routine. Shorter Sessions are partial. */

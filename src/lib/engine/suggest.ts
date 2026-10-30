@@ -1,4 +1,4 @@
-import { fmtWeight, roundTo, stepIn } from '../units'
+import { convert, fmtWeight, roundTo, stepIn } from '../units'
 import { CFG } from './config'
 import { toExposures, type Exposure } from './exposure'
 import { analyze, isStall, layoffState, noviceTarget, repDrop, type Analysis } from './stages'
@@ -7,6 +7,17 @@ import type { EngineExercise, Stage, SuggestInput, Suggestion } from './types'
 import type { Unit } from '../db'
 
 function noHistory(ex: EngineExercise, unit: Unit): Suggestion {
+  if (ex.startWeight !== undefined && ex.startWeight > 0) {
+    const weight = roundTo(convert(ex.startWeight, ex.stepUnit, unit), stepIn(ex, unit))
+    return {
+      weight,
+      unit,
+      reps: midReps(ex),
+      stage: 'CALIBRATION',
+      rule: 'starting-weight',
+      reason: `First time: start at ${fmtWeight(weight, unit)} and aim for ${midReps(ex)} reps.`,
+    }
+  }
   return {
     weight: null,
     unit,

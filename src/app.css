@@ -45,7 +45,7 @@ button.card { @apply w-full; }
 .cell { @apply btn bg-base-100 border-base-300 flex-none min-w-17 tabular-nums; }
 .cell[aria-pressed='true'] { background-color: var(--color-primary); color: var(--color-primary-content); border-color: var(--color-primary); @apply font-bold; }
 
-input[type='text'], textarea {
+input[type='text'], input[type='number'], textarea {
   @apply input w-full min-h-14 text-base;
 }
 textarea { @apply textarea min-h-24 py-3; }

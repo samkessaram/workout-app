@@ -3,7 +3,7 @@
   import {
     EQUIPMENT, JOINTS, KINDS, KIND_DEFAULTS, MUSCLES, REST_CATEGORIES, REST_SECONDS, saveExercise, stepOptions,
   } from '../lib/exercises'
-  import { fmtWeight } from '../lib/units'
+  import { fmtWeight, roundTo } from '../lib/units'
   import Chips from './Chips.svelte'
   import Strip from './Strip.svelte'
 
@@ -13,6 +13,9 @@
   // svelte-ignore state_referenced_locally
   let form = $state<Exercise>({ ...exercise, bodyAreas: [...exercise.bodyAreas] })
   let error = $state('')
+  let showKindHelp = $state(false)
+  // svelte-ignore state_referenced_locally
+  let startText = $state(exercise.startWeight === undefined ? '' : String(exercise.startWeight))
   // svelte-ignore state_referenced_locally
   const isNew = exercise.id === undefined
 
@@ -32,6 +35,11 @@
 
   async function save() {
     try {
+      const start = startText.trim() === '' ? undefined : Number(startText)
+      if (form.equipment !== 'bodyweight' && (start === undefined || !(start > 0))) {
+        throw new Error('Enter a starting weight')
+      }
+      form.startWeight = start === undefined || Number.isNaN(start) ? undefined : roundTo(start, form.step)
       await saveExercise($state.snapshot(form))
       ondone()
     } catch (e) {
@@ -52,7 +60,22 @@
   </div>
 
   <div>
-    <div class="label">Kind</div>
+    <div class="label flex items-center gap-1">
+      Kind
+      <button
+        type="button"
+        class="btn btn-circle btn-ghost btn-xs !min-h-8 !h-8 !w-8 shadow-none"
+        aria-label="What do these mean?"
+        aria-expanded={showKindHelp}
+        onclick={() => (showKindHelp = !showKindHelp)}>ⓘ</button>
+    </div>
+    {#if showKindHelp}
+      <div class="card vstack mb-2 text-sm" role="note">
+        {#each KINDS as k (k.id)}
+          <div><strong>{k.label}.</strong> {k.help}</div>
+        {/each}
+      </div>
+    {/if}
     <Chips
       options={KINDS.map((k) => k.id)}
       selected={form.kind}
@@ -70,6 +93,14 @@
       fmt={(n) => fmtWeight(n, form.stepUnit)}
     />
   </div>
+
+  {#if form.equipment !== 'bodyweight'}
+    <label class="field">
+      <span>Starting weight ({form.stepUnit})</span>
+      <input type="text" inputmode="decimal" bind:value={startText} placeholder="e.g. 45" />
+      <span class="muted">Your first Session starts here. After that the app suggests from your history.</span>
+    </label>
+  {/if}
 
   <div>
     <div class="label">Rep range: low</div>

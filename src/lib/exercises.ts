@@ -3,11 +3,27 @@ import { stepChips } from './units'
 
 export const EQUIPMENT: Equipment[] = ['machine', 'dumbbell', 'cable', 'barbell', 'bodyweight']
 
-export const KINDS: { id: ExerciseKind; label: string }[] = [
-  { id: 'compound-lower', label: 'Lower compound' },
-  { id: 'compound-upper', label: 'Upper compound' },
-  { id: 'machine', label: 'Machine' },
-  { id: 'isolation', label: 'Isolation' },
+export const KINDS: { id: ExerciseKind; label: string; help: string }[] = [
+  {
+    id: 'compound-lower',
+    label: 'Lower compound',
+    help: 'A big multi-joint lift that works hips and knees together, like squat, deadlift, leg press or lunges. Your heaviest lifts, so weight jumps are the largest (about 5%) and you add weight nearly every Session at first.',
+  },
+  {
+    id: 'compound-upper',
+    label: 'Upper compound',
+    help: 'A multi-joint push or pull for the upper body, like bench press, overhead press, rows or pull-ups. Heavy, but the muscles are smaller than your legs, so jumps are smaller (about 2.5%).',
+  },
+  {
+    id: 'machine',
+    label: 'Machine',
+    help: 'A guided machine with a fixed path, like a chest press machine, leg extension or lat pulldown. Higher reps (8-12) and moderate jumps (about 4%); you add weight once every set hits the top of the range.',
+  },
+  {
+    id: 'isolation',
+    label: 'Isolation',
+    help: 'Works one joint and one muscle, like curls, lateral raises or triceps pushdowns. Light weights, higher reps (10-15) and the smallest jumps (about 2.5%).',
+  },
 ]
 
 export const MUSCLES = [
@@ -69,6 +85,7 @@ export async function saveExercise(ex: Exercise, store = db): Promise<number> {
     (e) => e.equipment === ex.equipment && e.id !== ex.id,
   )
   if (clash) throw new Error(`${exerciseLabel(clash)} already exists`)
+  if (ex.startWeight !== undefined && !(ex.startWeight > 0)) throw new Error('Starting weight must be more than zero')
   const row = { ...ex, name }
   return (await store.exercises.put(row)) as number
 }

@@ -38,6 +38,12 @@ describe('missing history', () => {
     expect(s.reason).not.toMatch(/\n/)
   })
 
+  it('starts at the lifter-chosen weight, converted to the display unit', () => {
+    const withStart = { ...lower, startWeight: 45 }
+    expect(ask(withStart, [])).toMatchObject({ rule: 'starting-weight', weight: 45, reps: 8, stage: 'CALIBRATION' })
+    expect(ask(withStart, [], 'kg').weight).toBe(20.25) // 45 lb is 20.41 kg, snapped to the 2.25 kg step
+  })
+
   it('treats a history of only warmups as no history', () => {
     expect(ask(lower, [sess([[45, 10, true]])]).rule).toBe('no-history')
   })

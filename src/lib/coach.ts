@@ -17,6 +17,7 @@ export function engineExercise(ex: Exercise, entry?: RoutineEntry): EngineExerci
     kind: ex.kind,
     step: ex.step,
     stepUnit: ex.stepUnit,
+    startWeight: ex.startWeight,
     repMin: entry?.repMin ?? ex.repMin,
     repMax: entry?.repMax ?? ex.repMax,
     targetSets: entry?.targetSets,
