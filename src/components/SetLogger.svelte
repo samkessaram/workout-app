@@ -79,7 +79,7 @@
   const logged = $derived(setsFor(session, exercise.id!))
 </script>
 
-<div class="stack">
+<div class="vstack">
   {#if suggestion}
     <p class="card">
       <strong>Suggestion</strong> <span class="muted">({suggestion.stage})</span>:
@@ -112,18 +112,18 @@
 
   <div class="row">
     <button class="chip" class:on={warmup} aria-pressed={warmup} onclick={() => (warmup = !warmup)}>Warmup</button>
-    <button class="btn primary grow" disabled={!canLog} onclick={log}>
+    <button class="btn btn-primary grow" disabled={!canLog} onclick={log}>
       Log {warmup ? 'warmup' : 'set'} · {fmtWeight(weight, unit)} × {repCount}
     </button>
   </div>
   {#if error}<p class="error" role="alert">{error}</p>{/if}
 
   {#if askBaseline}
-    <div class="card stack" role="alertdialog">
+    <div class="card vstack" role="alertdialog">
       <div>That was well off the Suggestion, and it's your first time on this Exercise at <strong>{session.location}</strong>.</div>
       <div class="row">
         <button class="btn grow" onclick={() => { askBaseline = false; answerBaseline(session.id!, exercise.id!, 'same') }}>Same as before</button>
-        <button class="btn primary grow" onclick={() => { askBaseline = false; answerBaseline(session.id!, exercise.id!, 'new') }}>Feels different (new baseline here)</button>
+        <button class="btn btn-primary grow" onclick={() => { askBaseline = false; answerBaseline(session.id!, exercise.id!, 'new') }}>Feels different (new baseline here)</button>
       </div>
     </div>
   {/if}

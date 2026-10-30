@@ -31,37 +31,20 @@
   })
 </script>
 
-<main>{#if ready}<Screen />{/if}</main>
+<main>{#if ready}<Screen />{:else}<div class="flex justify-center p-10"><span class="loading loading-spinner loading-lg"></span></div>{/if}</main>
 
-<nav aria-label="Main">
+<nav class="dock dock-lg" aria-label="Main">
   {#each tabs as t}
-    <button aria-current={active === t.id ? 'page' : undefined} onclick={() => (active = t.id)}>
-      {t.label}
+    <button class:dock-active={active === t.id} aria-current={active === t.id ? 'page' : undefined} onclick={() => (active = t.id)}>
+      <span class="dock-label">{t.label}</span>
     </button>
   {/each}
 </nav>
 
 <style>
   main {
-    height: calc(100% - var(--tap) - env(safe-area-inset-bottom));
+    height: 100%;
     overflow-y: auto;
-    padding: 1rem;
+    padding: 1rem 1rem calc(5.5rem + env(safe-area-inset-bottom));
   }
-  nav {
-    position: fixed;
-    inset: auto 0 0 0;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    background: var(--surface);
-    border-top: 1px solid var(--border);
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-  nav button {
-    min-height: var(--tap);
-    background: none;
-    border: 0;
-    color: var(--muted);
-    font-size: 0.85rem;
-  }
-  nav button[aria-current='page'] { color: var(--accent); font-weight: 600; }
 </style>

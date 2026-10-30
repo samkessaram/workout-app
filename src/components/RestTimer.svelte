@@ -41,7 +41,7 @@
 
 <style>
   .timer { margin: 0.75rem 0; }
-  .timer.done { border-color: var(--accent); }
+  .timer.done { border-color: var(--color-primary); }
   .clock { font-size: 2.6rem; font-weight: 500; font-variant-numeric: tabular-nums; line-height: 1.1; }
   .presets { display: flex; gap: 0.4rem; }
 </style>

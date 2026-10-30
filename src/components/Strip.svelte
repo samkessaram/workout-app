@@ -65,15 +65,4 @@
     scrollbar-width: none;
   }
   .strip::-webkit-scrollbar { display: none; }
-  .cell {
-    flex: none;
-    min-width: 4.2rem;
-    min-height: var(--tap);
-    scroll-snap-align: center;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    font-variant-numeric: tabular-nums;
-  }
-  .cell[aria-pressed='true'] { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 700; }
 </style>

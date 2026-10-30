@@ -20,8 +20,8 @@
     <button class="btn" onclick={onback}>‹ Settings</button>
     <h1 class="grow" style="margin:0">Exercises</h1>
   </div>
-  <div class="stack" style="margin-top:1rem">
-    <button class="btn primary block" onclick={() => (editing = newExercise(prefs.unit))}>+ New Exercise</button>
+  <div class="vstack" style="margin-top:1rem">
+    <button class="btn btn-primary btn-block" onclick={() => (editing = newExercise(prefs.unit))}>+ New Exercise</button>
     {#each $exercises ?? [] as e (e.id)}
       <button class="card" style="text-align:left" onclick={() => (editing = e)}>
         <div>{exerciseLabel(e)}</div>

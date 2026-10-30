@@ -50,9 +50,9 @@
   <h2>Add to {type} Routine</h2>
   <ExercisePicker exclude={routine.entries.map((e) => e.exerciseId)} onpick={add} oncancel={() => (adding = false)} />
 {:else}
-  <div class="stack" style="margin-top:1rem">
+  <div class="vstack" style="margin-top:1rem">
     {#each routine.entries as e, i (e.exerciseId)}
-      <div class="card stack">
+      <div class="card vstack">
         <div class="row">
           <div class="grow">
             <div>{label(e.exerciseId)}</div>
@@ -84,7 +84,7 @@
             />
           </div>
           <div class="row">
-            <button class="btn danger grow" onclick={() => persist(routine.entries.filter((_, j) => j !== i))}>Remove</button>
+            <button class="btn btn-error btn-outline grow" onclick={() => persist(routine.entries.filter((_, j) => j !== i))}>Remove</button>
             <button class="btn grow" onclick={() => (editing = null)}>Close</button>
           </div>
         {:else}
@@ -94,6 +94,6 @@
     {:else}
       <p class="muted">No Exercises in the {type} Routine yet.</p>
     {/each}
-    <button class="btn primary block" onclick={() => (adding = true)}>+ Add Exercise</button>
+    <button class="btn btn-primary btn-block" onclick={() => (adding = true)}>+ Add Exercise</button>
   </div>
 {/if}

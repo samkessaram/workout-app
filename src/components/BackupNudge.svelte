@@ -10,6 +10,6 @@
 {#if show}
   <div class="card row" role="status">
     <span class="grow">It's been 2+ weeks since your last backup.</span>
-    {#if onopen}<button class="btn primary" onclick={onopen}>Back up</button>{/if}
+    {#if onopen}<button class="btn btn-primary" onclick={onopen}>Back up</button>{/if}
   </div>
 {/if}

@@ -13,7 +13,7 @@
   }
 </script>
 
-<div class="card stack">
+<div class="card vstack">
   <strong>Brief</strong>
 
   {#if brief.deload?.active}
@@ -22,12 +22,12 @@
       about 90% of your usual loads and half the sets.
     </div>
   {:else if brief.deload?.advice}
-    <div class="card stack" role="alert">
+    <div class="card vstack" role="alert">
       <div><strong>Consider a deload week.</strong> {brief.deload.advice.reason}</div>
       <div class="muted">One week, half the sets, about 90% load. Your call.</div>
       <div class="row">
         <button class="btn grow" onclick={async () => { await dismissDeload(); brief.deload = undefined }}>Not now</button>
-        <button class="btn primary grow" onclick={async () => { await acceptDeload(); location.reload() }}>Start deload</button>
+        <button class="btn btn-primary grow" onclick={async () => { await acceptDeload(); location.reload() }}>Start deload</button>
       </div>
     </div>
   {/if}

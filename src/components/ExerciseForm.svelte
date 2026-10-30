@@ -40,7 +40,7 @@
   }
 </script>
 
-<div class="stack">
+<div class="vstack">
   <label class="field">
     <span>Name</span>
     <input type="text" bind:value={form.name} placeholder="e.g. Leg Press" />
@@ -104,6 +104,6 @@
 
   <div class="row">
     <button class="btn grow" onclick={ondone}>Cancel</button>
-    <button class="btn primary grow" onclick={save}>Save</button>
+    <button class="btn btn-primary grow" onclick={save}>Save</button>
   </div>
 </div>

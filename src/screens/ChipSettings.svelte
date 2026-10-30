@@ -15,11 +15,11 @@
   <button class="btn" onclick={onback}>‹ Settings</button>
   <h1 class="grow" style="margin:0">Note chips</h1>
 </div>
-<div class="stack" style="margin-top:1rem">
+<div class="vstack" style="margin-top:1rem">
   <p class="muted">Custom chips appear next to the built-in note chips on Sets and Exercises.</p>
   <div class="row">
     <input class="grow" type="text" placeholder="e.g. sore elbow" bind:value={text} />
-    <button class="btn primary" disabled={!text.trim()} onclick={add}>Add</button>
+    <button class="btn btn-primary" disabled={!text.trim()} onclick={add}>Add</button>
   </div>
   <div class="chips">
     {#each prefs.customChips as c (c)}

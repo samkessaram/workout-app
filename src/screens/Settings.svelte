@@ -23,19 +23,19 @@
 
 <section>
   <h2>Exercises</h2>
-  <button class="btn block" onclick={() => (view = 'exercises')}>Manage Exercises ›</button>
+  <button class="btn btn-block" onclick={() => (view = 'exercises')}>Manage Exercises ›</button>
 </section>
 
 <section>
   <h2>Notes</h2>
-  <button class="btn block" onclick={() => (view = 'chips')}>Custom note chips ›</button>
+  <button class="btn btn-block" onclick={() => (view = 'chips')}>Custom note chips ›</button>
 </section>
 
 <section>
   <h2>Data</h2>
-  <div class="stack">
-    <button class="btn block" onclick={() => (view = 'backup')}>Export / restore ›</button>
-    <button class="btn block" onclick={() => (view = 'legacy')}>Import old S3 history ›</button>
+  <div class="vstack">
+    <button class="btn btn-block" onclick={() => (view = 'backup')}>Export / restore ›</button>
+    <button class="btn btn-block" onclick={() => (view = 'legacy')}>Import old S3 history ›</button>
   </div>
 </section>
 
@@ -53,15 +53,3 @@
   <p class="muted">Changes display and input only. Logged weights keep the unit they were entered in.</p>
 </section>
 {/if}
-
-<style>
-  .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
-  .seg button {
-    min-height: var(--tap);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-  }
-  .seg button.on { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 600; }
-  .muted { color: var(--muted); font-size: 0.9rem; }
-</style>

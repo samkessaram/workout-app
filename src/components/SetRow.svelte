@@ -57,7 +57,7 @@
 </div>
 
 {#if open}
-  <div class="stack" style="margin:0.5rem 0">
+  <div class="vstack" style="margin:0.5rem 0">
     <div class="label">Correct weight ({unit})</div>
     <Strip value={weight} {step} onchange={(w) => (weight = w)} />
     <div class="label">Correct reps</div>
@@ -65,7 +65,7 @@
     {#if error}<p class="error" role="alert">{error}</p>{/if}
     <div class="row">
       <button class="btn grow" onclick={() => (open = false)}>Cancel</button>
-      <button class="btn primary grow" onclick={save}>Save correction</button>
+      <button class="btn btn-primary grow" onclick={save}>Save correction</button>
     </div>
   </div>
 {/if}

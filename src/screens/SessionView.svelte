@@ -159,17 +159,17 @@
     {#key current.id}
       <SetLogger exercise={current} session={$session} {history} {allHistory} {routine} {suggestion} />
     {/key}
-    <button class="btn block" style="margin-top:1rem" onclick={() => (currentId = null)}>Next Exercise ›</button>
+    <button class="btn btn-block" style="margin-top:1rem" onclick={() => (currentId = null)}>Next Exercise ›</button>
   {:else}
     {#if brief && finished.length === 0}
       <Brief {brief} exercises={$exercises ?? []} />
     {/if}
     <h2>What's next?</h2>
-    <div class="stack">
+    <div class="vstack">
       {#each remaining as id (id)}
         {@const ex = $exercises?.find((e) => e.id === id)}
         {#if ex}
-          <button class="btn primary" style="text-align:left" onclick={() => (currentId = id)}>{exerciseLabel(ex)}</button>
+          <button class="btn btn-primary" style="text-align:left" onclick={() => (currentId = id)}>{exerciseLabel(ex)}</button>
         {/if}
       {/each}
       <button class="btn" onclick={() => (adding = true)}>+ Add Exercise</button>

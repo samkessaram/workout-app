@@ -23,7 +23,7 @@
 </script>
 
 {#if open}
-  <div class="card stack">
+  <div class="card vstack">
     <div class="label">How does it feel?</div>
     <Chips options={['sharp', 'dull'] as const} selected={severity} onpick={(v) => (severity = v)} />
     <div class="label">What now?</div>
@@ -32,7 +32,7 @@
     <Chips options={options} selected={area} onpick={(a) => (area = area === a ? undefined : a)} />
     <div class="row">
       <button class="btn grow" onclick={() => (open = false)}>Cancel</button>
-      <button class="btn danger grow" onclick={save}>Flag pain</button>
+      <button class="btn btn-error btn-outline grow" onclick={save}>Flag pain</button>
     </div>
   </div>
 {:else}

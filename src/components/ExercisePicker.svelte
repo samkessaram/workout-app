@@ -19,7 +19,7 @@
   <h2>New Exercise</h2>
   <ExerciseForm exercise={newExercise(prefs.unit)} ondone={() => (creating = false)} />
 {:else}
-  <div class="stack">
+  <div class="vstack">
     {#each ($exercises ?? []).filter((e) => !exclude.includes(e.id!)) as e (e.id)}
       <button class="btn" style="text-align:left" onclick={() => onpick(e.id!)}>{exerciseLabel(e)}</button>
     {:else}

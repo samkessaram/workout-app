@@ -20,7 +20,7 @@
 
 {#if flags.length}
   <h2>{title}</h2>
-  <div class="stack">
+  <div class="vstack">
     {#each flags as f (f.id)}
       <div class="card row">
         <div class="grow">

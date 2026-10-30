@@ -17,7 +17,7 @@
   {@const s = $data.session}
   <h1>Session done</h1>
   <p class="muted">{s.date} · {s.type} · {s.location}{s.trainer ? ' · trainer' : ''}</p>
-  <div class="stack">
+  <div class="vstack">
     {#each s.exerciseIds as id (id)}
       {@const ex = $data.exercises.find((e) => e.id === id)}
       {@const sets = setsFor(s, id)}
@@ -32,6 +32,6 @@
     {:else}
       <p class="muted">No sets were logged.</p>
     {/each}
-    <button class="btn primary block" onclick={ondone}>Back to Today</button>
+    <button class="btn btn-primary btn-block" onclick={ondone}>Back to Today</button>
   </div>
 {/if}

@@ -22,7 +22,7 @@
   }
 </script>
 
-<div class="stack">
+<div class="vstack">
   <div>
     <div class="label">Session type</div>
     <Chips options={SESSION_TYPES} selected={type} onpick={(t) => (type = t)} />
@@ -39,5 +39,5 @@
     <div class="label">Rest timer</div>
     <Chips options={['on', 'off']} selected={timer ? 'on' : 'off'} onpick={(v) => (timer = v === 'on')} />
   </div>
-  <button class="btn primary block" onclick={start}>Start Session</button>
+  <button class="btn btn-primary btn-block" onclick={start}>Start Session</button>
 </div>

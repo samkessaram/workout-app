@@ -42,12 +42,12 @@
     <h1 class="grow" style="margin:0">{session.date}</h1>
   </div>
   <p class="muted">{session.type} · {session.location}{session.trainer ? ' · trainer' : ''}{session.closedAt === undefined ? ' · in progress' : ''}</p>
-  <div class="stack">
+  <div class="vstack">
     {#each session.exerciseIds as id (id)}
       {@const ex = exercises.find((e) => e.id === id)}
       {@const sets = setsFor(session, id)}
       {#if ex && sets.length}
-        <div class="card stack">
+        <div class="card vstack">
           <strong>{exerciseLabel(ex)}</strong>
           {#if session.exerciseChips?.[id]?.length || session.exerciseNotes?.[id]}
             <div class="muted">{[...(session.exerciseChips?.[id] ?? []), session.exerciseNotes?.[id]].filter(Boolean).join(', ')}</div>
@@ -76,7 +76,7 @@
       {summarizeSets(past[0].sets)}
     </p>
     <h2>Progress</h2>
-    <div class="stack">
+    <div class="vstack">
       {#each past as h (h.sessionId)}
         <button class="card" style="text-align:left" onclick={() => (sessionId = h.sessionId)}>
           <div>{h.date} <span class="muted">· {h.location}{h.trainer ? ' · trainer' : ''}</span></div>
@@ -91,7 +91,7 @@
 {:else}
   <h1>History</h1>
   <Chips options={['sessions', 'exercises'] as const} selected={tab} onpick={(t) => (tab = t)} fmt={(t) => (t === 'sessions' ? 'Sessions' : 'Exercises')} />
-  <div class="stack" style="margin-top:1rem">
+  <div class="vstack" style="margin-top:1rem">
     {#if tab === 'sessions'}
       {#each sessions as s (s.id)}
         <button class="card" style="text-align:left" onclick={() => (sessionId = s.id!)}>

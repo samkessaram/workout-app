@@ -83,7 +83,7 @@
   <h1 class="grow" style="margin:0">Import history</h1>
 </div>
 
-<div class="stack" style="margin-top:1rem">
+<div class="vstack" style="margin-top:1rem">
   {#if mapping}
     <h2>Map to an existing Exercise</h2>
     <ExercisePicker onpick={mapTo} oncancel={() => (mapping = null)} />
@@ -108,7 +108,7 @@
       <h2>Review {needsReview.length} unmatched Exercises</h2>
       {#each needsReview as item (item.id)}
         {@const r = resolutions[item.id]}
-        <div class="card stack">
+        <div class="card vstack">
           <div>
             <strong>{item.name}</strong>
             <span class="muted"> {item.equipment ?? ''} · {item.sets} sets</span>
@@ -124,27 +124,27 @@
       {/each}
     {/if}
 
-    <button class="btn primary block" disabled={busy || parsed.sessions.length === 0} onclick={run}>
+    <button class="btn btn-primary btn-block" disabled={busy || parsed.sessions.length === 0} onclick={run}>
       Import {parsed.sessions.length} Sessions
     </button>
-    <button class="btn block" onclick={() => (parsed = null)}>Cancel</button>
+    <button class="btn btn-block" onclick={() => (parsed = null)}>Cancel</button>
   {:else}
     <p class="muted">
       Choose the session JSON files you exported from S3 (several at once, or a folder). Nothing leaves this
       phone. Importing the same files twice skips Sessions already imported.
     </p>
-    <label class="btn primary block" style="display:grid;place-items:center">
+    <label class="btn btn-primary btn-block" style="display:grid;place-items:center">
       Choose files…
       <input type="file" accept="application/json,.json" multiple onchange={pick} hidden />
     </label>
-    <label class="btn block" style="display:grid;place-items:center">
+    <label class="btn btn-block" style="display:grid;place-items:center">
       Choose a folder…
       <input type="file" webkitdirectory multiple onchange={pick} hidden />
     </label>
   {/if}
 
   {#if result}
-    <div class="card stack" role="status">
+    <div class="card vstack" role="status">
       <strong>Import finished</strong>
       <div>{result.imported} Sessions imported · {result.duplicates} already there</div>
       <div>{result.created} Exercises created{result.skippedExercises ? ` · ${result.skippedExercises} skipped` : ''}</div>

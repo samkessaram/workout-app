@@ -35,7 +35,7 @@
 </div>
 
 {#if open}
-  <div class="stack" style="margin:0.5rem 0">
+  <div class="vstack" style="margin:0.5rem 0">
     <div class="label">Notes</div>
     <Chips options={[...NOTE_CHIPS, ...prefs.customChips]} selected={chips} onpick={ontoggle} />
     <div class="label">Confounders (a stall with one of these does not count)</div>

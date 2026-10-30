@@ -46,21 +46,21 @@
   <h1 class="grow" style="margin:0">Backup</h1>
 </div>
 
-<div class="stack" style="margin-top:1rem">
+<div class="vstack" style="margin-top:1rem">
   <p class="muted">All data lives on this phone. Export regularly: if the phone is lost, so is the data.</p>
-  <button class="btn primary block" onclick={doExport}>Export backup</button>
+  <button class="btn btn-primary btn-block" onclick={doExport}>Export backup</button>
 
-  <label class="btn block" style="display:grid;place-items:center">
+  <label class="btn btn-block" style="display:grid;place-items:center">
     Restore from backup…
     <input type="file" accept="application/json,.json" onchange={pick} hidden />
   </label>
 
   {#if pending}
-    <div class="card stack" role="alertdialog">
+    <div class="card vstack" role="alertdialog">
       <strong>Replace everything on this phone with that backup?</strong>
       <div class="row">
         <button class="btn grow" onclick={() => (pending = null)}>Cancel</button>
-        <button class="btn danger grow" onclick={confirmImport}>Replace</button>
+        <button class="btn btn-error btn-outline grow" onclick={confirmImport}>Replace</button>
       </div>
     </div>
   {/if}
