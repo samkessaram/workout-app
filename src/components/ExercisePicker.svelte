@@ -19,11 +19,11 @@
   <h2>New Exercise</h2>
   <ExerciseForm exercise={newExercise(prefs.unit)} ondone={() => (creating = false)} />
 {:else}
-  <div class="vstack">
+  <div class="grid grid-cols-1 gap-3">
     {#each ($exercises ?? []).filter((e) => !exclude.includes(e.id!)) as e (e.id)}
       <button class="btn" style="text-align:left" onclick={() => onpick(e.id!)}>{exerciseLabel(e)}</button>
     {:else}
-      <p class="muted">No Exercises to add yet.</p>
+      <p class="text-base-content/60 text-sm">No Exercises to add yet.</p>
     {/each}
     <button class="btn" onclick={() => (creating = true)}>+ New Exercise</button>
     {#if oncancel}<button class="btn" onclick={oncancel}>Cancel</button>{/if}

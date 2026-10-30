@@ -20,9 +20,9 @@
 </script>
 
 <h2>Update the {routine.sessionType} Routine?</h2>
-<div class="vstack">
-  {#if diff.added.length}<p class="card">Added: {names(diff.added).join(', ')}</p>{/if}
-  {#if diff.skipped.length}<p class="card">Skipped: {names(diff.skipped).join(', ')}</p>{/if}
+<div class="grid grid-cols-1 gap-3">
+  {#if diff.added.length}<p class="card card-border bg-base-100 p-4">Added: {names(diff.added).join(', ')}</p>{/if}
+  {#if diff.skipped.length}<p class="card card-border bg-base-100 p-4">Skipped: {names(diff.skipped).join(', ')}</p>{/if}
   <button class="btn btn-primary btn-block" onclick={update}>Update Routine</button>
   <button class="btn btn-block" onclick={ondone}>Keep as is</button>
 </div>

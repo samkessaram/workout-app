@@ -20,12 +20,12 @@
 
 {#if flags.length}
   <h2>{title}</h2>
-  <div class="vstack">
+  <div class="grid grid-cols-1 gap-3">
     {#each flags as f (f.id)}
-      <div class="card row">
+      <div class="card card-border bg-base-100 p-4 flex flex-wrap items-center gap-2">
         <div class="grow">
           <strong>{f.severity}</strong> · {f.action}{f.bodyArea ? ` · ${f.bodyArea}` : ''}
-          <div class="muted">{name(f.exerciseId)} · {new Date(f.createdAt).toLocaleDateString('en-CA')}</div>
+          <div class="text-base-content/60 text-sm">{name(f.exerciseId)} · {new Date(f.createdAt).toLocaleDateString('en-CA')}</div>
         </div>
         <button class="btn" onclick={() => resolveFlag(f.id!)}>Resolve</button>
       </div>

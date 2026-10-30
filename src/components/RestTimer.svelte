@@ -23,25 +23,18 @@
 </script>
 
 {#if t && view}
-  <div class="card timer" class:done={view.done} role="timer" aria-live="off">
-    <div class="row">
+  <div class="card card-border bg-base-100 p-4 my-3" class:border-primary={view.done} role="timer" aria-live="off">
+    <div class="flex flex-wrap items-center gap-2">
       <div class="grow">
-        <div class="label">{view.done ? `Rested (target ${fmtClock(t.total)})` : 'Resting'}</div>
-        <div class="clock">{view.done ? fmtClock(view.elapsed) : fmtClock(view.left)}</div>
+        <div class="label whitespace-normal mb-1">{view.done ? `Rested (target ${fmtClock(t.total)})` : 'Resting'}</div>
+        <div class="text-4xl tabular-nums">{view.done ? fmtClock(view.elapsed) : fmtClock(view.left)}</div>
       </div>
-      <div class="presets">
+      <div class="flex gap-2">
         {#each [60, 90, 120] as s}
-          <button class="chip" class:on={t.total === s} onclick={() => startRest(s, t.startedAt)}>{s}s</button>
+          <button class="btn" class:btn-primary={t.total === s} onclick={() => startRest(s, t.startedAt)}>{s}s</button>
         {/each}
       </div>
       <button class="btn" onclick={clearRest}>Skip</button>
     </div>
   </div>
 {/if}
-
-<style>
-  .timer { margin: 0.75rem 0; }
-  .timer.done { border-color: var(--color-primary); }
-  .clock { font-size: 2.6rem; font-weight: 500; font-variant-numeric: tabular-nums; line-height: 1.1; }
-  .presets { display: flex; gap: 0.4rem; }
-</style>

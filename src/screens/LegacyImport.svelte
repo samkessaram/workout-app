@@ -78,47 +78,47 @@
   const autoMatched = $derived(plan.length - needsReview.length)
 </script>
 
-<div class="row">
+<div class="flex flex-wrap items-center gap-2">
   <button class="btn" onclick={onback}>‹ Settings</button>
   <h1 class="grow" style="margin:0">Import history</h1>
 </div>
 
-<div class="vstack" style="margin-top:1rem">
+<div class="grid grid-cols-1 gap-3" style="margin-top:1rem">
   {#if mapping}
     <h2>Map to an existing Exercise</h2>
     <ExercisePicker onpick={mapTo} oncancel={() => (mapping = null)} />
   {:else if parsed}
-    <div class="card">
+    <div class="card card-border bg-base-100 p-4">
       Read <strong>{parsed.sessions.length}</strong> Sessions.
       {#if autoMatched}{autoMatched} Exercises matched automatically.{/if}
     </div>
 
     {#if parsed.errors.length}
-      <div class="card">
-        <strong class="error">{parsed.errors.length} records could not be read</strong>
-        {#each parsed.errors.slice(0, 8) as e}<div class="muted">{e.source}: {e.message}</div>{/each}
-        {#if parsed.errors.length > 8}<div class="muted">…and {parsed.errors.length - 8} more</div>{/if}
+      <div class="card card-border bg-base-100 p-4">
+        <strong class="text-error">{parsed.errors.length} records could not be read</strong>
+        {#each parsed.errors.slice(0, 8) as e}<div class="text-base-content/60 text-sm">{e.source}: {e.message}</div>{/each}
+        {#if parsed.errors.length > 8}<div class="text-base-content/60 text-sm">…and {parsed.errors.length - 8} more</div>{/if}
       </div>
     {/if}
     {#if parsed.warnings.length}
-      <div class="card muted">{parsed.warnings.length} sets or exercises were skipped as unusable.</div>
+      <div class="card card-border bg-base-100 p-4 text-base-content/60 text-sm">{parsed.warnings.length} sets or exercises were skipped as unusable.</div>
     {/if}
 
     {#if needsReview.length}
       <h2>Review {needsReview.length} unmatched Exercises</h2>
       {#each needsReview as item (item.id)}
         {@const r = resolutions[item.id]}
-        <div class="card vstack">
+        <div class="card card-border bg-base-100 p-4 grid grid-cols-1 gap-3">
           <div>
             <strong>{item.name}</strong>
-            <span class="muted"> {item.equipment ?? ''} · {item.sets} sets</span>
+            <span class="text-base-content/60 text-sm"> {item.equipment ?? ''} · {item.sets} sets</span>
           </div>
-          <div class="chips">
-            <button class="chip" class:on={r?.kind === 'create'} onclick={() => choose(item.id, 'create')}>Create new</button>
-            <button class="chip" class:on={r?.kind === 'map'} onclick={() => (mapping = item.id)}>
+          <div class="flex flex-wrap gap-2">
+            <button class="btn" class:btn-primary={r?.kind === 'create'} onclick={() => choose(item.id, 'create')}>Create new</button>
+            <button class="btn" class:btn-primary={r?.kind === 'map'} onclick={() => (mapping = item.id)}>
               {r?.kind === 'map' ? `Map: ${label(r.exerciseId)}` : 'Map to existing…'}
             </button>
-            <button class="chip" class:on={r?.kind === 'skip'} onclick={() => choose(item.id, 'skip')}>Skip</button>
+            <button class="btn" class:btn-primary={r?.kind === 'skip'} onclick={() => choose(item.id, 'skip')}>Skip</button>
           </div>
         </div>
       {/each}
@@ -129,7 +129,7 @@
     </button>
     <button class="btn btn-block" onclick={() => (parsed = null)}>Cancel</button>
   {:else}
-    <p class="muted">
+    <p class="text-base-content/60 text-sm">
       Choose the session JSON files you exported from S3 (several at once, or a folder). Nothing leaves this
       phone. Importing the same files twice skips Sessions already imported.
     </p>
@@ -144,12 +144,12 @@
   {/if}
 
   {#if result}
-    <div class="card vstack" role="status">
+    <div class="card card-border bg-base-100 p-4 grid grid-cols-1 gap-3" role="status">
       <strong>Import finished</strong>
       <div>{result.imported} Sessions imported · {result.duplicates} already there</div>
       <div>{result.created} Exercises created{result.skippedExercises ? ` · ${result.skippedExercises} skipped` : ''}</div>
       {#if result.seeded.length}<div>Routines created for: {result.seeded.join(', ')}</div>{/if}
     </div>
   {/if}
-  {#if error}<p class="error" role="alert">{error}</p>{/if}
+  {#if error}<p class="text-error" role="alert">{error}</p>{/if}
 </div>

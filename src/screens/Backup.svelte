@@ -41,13 +41,13 @@
   }
 </script>
 
-<div class="row">
+<div class="flex flex-wrap items-center gap-2">
   <button class="btn" onclick={onback}>‹ Settings</button>
   <h1 class="grow" style="margin:0">Backup</h1>
 </div>
 
-<div class="vstack" style="margin-top:1rem">
-  <p class="muted">All data lives on this phone. Export regularly: if the phone is lost, so is the data.</p>
+<div class="grid grid-cols-1 gap-3" style="margin-top:1rem">
+  <p class="text-base-content/60 text-sm">All data lives on this phone. Export regularly: if the phone is lost, so is the data.</p>
   <button class="btn btn-primary btn-block" onclick={doExport}>Export backup</button>
 
   <label class="btn btn-block" style="display:grid;place-items:center">
@@ -56,9 +56,9 @@
   </label>
 
   {#if pending}
-    <div class="card vstack" role="alertdialog">
+    <div class="card card-border bg-base-100 p-4 grid grid-cols-1 gap-3" role="alertdialog">
       <strong>Replace everything on this phone with that backup?</strong>
-      <div class="row">
+      <div class="flex flex-wrap items-center gap-2">
         <button class="btn grow" onclick={() => (pending = null)}>Cancel</button>
         <button class="btn btn-error btn-outline grow" onclick={confirmImport}>Replace</button>
       </div>
@@ -66,5 +66,5 @@
   {/if}
 
   {#if message}<p role="status">{message}</p>{/if}
-  {#if error}<p class="error" role="alert">{error}</p>{/if}
+  {#if error}<p class="text-error" role="alert">{error}</p>{/if}
 </div>

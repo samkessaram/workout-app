@@ -16,10 +16,10 @@
   const isOn = (o: T) => (Array.isArray(selected) ? selected.includes(o) : selected === o)
 </script>
 
-<div class="chips">
+<div class="flex flex-wrap gap-2">
   {#each options as o (o)}
-    <button type="button" class="chip" class:on={isOn(o)} class:rec={recommended === o} onclick={() => onpick(o)}>
-      {fmt(o)}
+    <button type="button" class="btn" class:btn-primary={isOn(o)} onclick={() => onpick(o)}>
+      {fmt(o)}{recommended === o ? ' ★' : ''}
     </button>
   {/each}
 </div>

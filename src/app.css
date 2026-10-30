@@ -3,51 +3,30 @@
   themes: light --default, dark --prefersdark;
 }
 
-:root {
-  --tap: 56px;
+/* Same-name themes override just these variables; everything else stays stock daisyUI. */
+@plugin 'daisyui/theme' {
+  name: 'light';
+  default: true;
+  --color-primary: #0c035f;
+  --color-primary-content: #ffffff;
+}
+@plugin 'daisyui/theme' {
+  name: 'dark';
+  prefersdark: true;
+  --color-primary: #a83232;
+  --color-primary-content: #ffffff;
+}
+
+@theme {
+  --font-sans: 'Inter Variable', system-ui, sans-serif;
 }
 
 html, body, #app { height: 100%; margin: 0; }
-body {
-  @apply bg-base-200 text-base-content;
-  font-size: 18px;
-  overscroll-behavior: none;
-  -webkit-tap-highlight-color: transparent;
-}
+body { font-family: var(--font-sans); }
 
-h1 { @apply text-3xl font-bold mb-4; }
-h2 { @apply text-lg font-semibold mt-5 mb-2; }
+/* Tailwind's reset strips heading sizes. */
+h1 { @apply text-3xl mb-4; }
+h2 { @apply text-lg mt-5 mb-2; }
 
-.muted { @apply text-base-content/60 text-sm; }
-.label { @apply block text-base-content/60 text-sm mb-1; white-space: normal; }
-.vstack { @apply grid grid-cols-[minmax(0,1fr)] gap-3; }
-.row { @apply flex flex-wrap items-center gap-2; }
-.grow { flex: 1; }
-.error { @apply text-error; }
-label.field { @apply grid gap-1; }
-label.field > span { @apply text-base-content/60 text-sm; }
-
-.card { @apply bg-base-100 rounded-box shadow-sm border border-base-300 px-4 py-3; }
-button.card { @apply w-full; }
-
-.btn { @apply min-h-14 text-base; }
-.btn-block { @apply w-full; }
-
-.chips { @apply flex flex-wrap gap-2; }
-.chip { @apply btn bg-base-100 border-base-300 min-h-11 h-11 rounded-full px-4 font-normal; }
-.chip.on { background-color: var(--color-primary); color: var(--color-primary-content); border-color: var(--color-primary); @apply font-semibold; }
-.chip.rec::after { content: ' ★'; }
-
-.seg { @apply grid grid-cols-2 gap-2; }
-.seg button { @apply btn bg-base-100 border-base-300; }
-.seg button.on { background-color: var(--color-primary); color: var(--color-primary-content); border-color: var(--color-primary); }
-
-.cell { @apply btn bg-base-100 border-base-300 flex-none min-w-17 tabular-nums; }
-.cell[aria-pressed='true'] { background-color: var(--color-primary); color: var(--color-primary-content); border-color: var(--color-primary); @apply font-bold; }
-
-input[type='text'], input[type='number'], textarea {
-  @apply input w-full min-h-14 text-base;
-}
-textarea { @apply textarea min-h-24 py-3; }
-
-.btn:not(.btn-primary):not(.btn-error):not(.chip):not(.cell) { @apply bg-base-100 border-base-300 shadow-sm; }
+/* No bold anywhere. */
+strong, b, h1, h2, h3, h4, h5, h6, .btn, .dock-label { font-weight: 400; }

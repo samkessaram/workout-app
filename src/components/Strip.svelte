@@ -43,27 +43,17 @@
   }
 </script>
 
-<div class="wrap">
-  <button type="button" class="btn nudge" aria-label="Decrease" onclick={() => nudge(-1)}>−</button>
-  <div class="strip" bind:this={strip}>
+<div class="flex items-stretch gap-2">
+  <button type="button" class="btn btn-square" aria-label="Decrease" onclick={() => nudge(-1)}>−</button>
+  <div class="strip flex min-w-0 flex-1 gap-2 overflow-x-auto" bind:this={strip}>
     {#each items as v (v)}
-      <button type="button" class="cell" aria-pressed={v === value} onclick={() => onchange(v)}>{fmt(v)}</button>
+      <button type="button" class="btn flex-none" class:btn-primary={v === value} aria-pressed={v === value} onclick={() => onchange(v)}>{fmt(v)}</button>
     {/each}
   </div>
-  <button type="button" class="btn nudge" aria-label="Increase" onclick={() => nudge(1)}>+</button>
+  <button type="button" class="btn btn-square" aria-label="Increase" onclick={() => nudge(1)}>+</button>
 </div>
 
 <style>
-  .wrap { display: flex; gap: 0.4rem; align-items: stretch; }
-  .nudge { padding: 0; width: var(--tap); flex: none; font-size: 1.4rem; }
-  .strip {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    gap: 0.4rem;
-    overflow-x: auto;
-    scroll-snap-type: x proximity;
-    scrollbar-width: none;
-  }
+  .strip { scroll-snap-type: x proximity; scrollbar-width: none; }
   .strip::-webkit-scrollbar { display: none; }
 </style>

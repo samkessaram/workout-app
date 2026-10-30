@@ -23,18 +23,18 @@
 </script>
 
 {#if open}
-  <div class="card vstack">
-    <div class="label">How does it feel?</div>
+  <div class="card card-border bg-base-100 p-4 grid grid-cols-1 gap-3">
+    <div class="label whitespace-normal mb-1">How does it feel?</div>
     <Chips options={['sharp', 'dull'] as const} selected={severity} onpick={(v) => (severity = v)} />
-    <div class="label">What now?</div>
+    <div class="label whitespace-normal mb-1">What now?</div>
     <Chips options={['stop', 'continue'] as const} selected={action} onpick={(v) => (action = v)} />
-    <div class="label">Where (optional)</div>
+    <div class="label whitespace-normal mb-1">Where (optional)</div>
     <Chips options={options} selected={area} onpick={(a) => (area = area === a ? undefined : a)} />
-    <div class="row">
+    <div class="flex flex-wrap items-center gap-2">
       <button class="btn grow" onclick={() => (open = false)}>Cancel</button>
       <button class="btn btn-error btn-outline grow" onclick={save}>Flag pain</button>
     </div>
   </div>
 {:else}
-  <button class="chip" onclick={() => (open = true)}>⚠ Pain</button>
+  <button class="btn" onclick={() => (open = true)}>⚠ Pain</button>
 {/if}

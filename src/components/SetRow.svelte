@@ -42,28 +42,28 @@
   }
 </script>
 
-<div class="row">
+<div class="flex flex-wrap items-center gap-2">
   <div class="grow">
     {label}: {fmtWeight(set.weight, set.unit)} × {set.reps}
     {#if set.prev?.length}
-      <span class="muted">
+      <span class="text-base-content/60 text-sm">
         (corrected from {set.prev.map((p) => `${fmtWeight(p.weight, p.unit)} × ${p.reps}`).join(' → ')})
       </span>
     {/if}
   </div>
   {#if editable && !open}
-    <button class="chip" onclick={begin}>Correct</button>
+    <button class="btn" onclick={begin}>Correct</button>
   {/if}
 </div>
 
 {#if open}
-  <div class="vstack" style="margin:0.5rem 0">
-    <div class="label">Correct weight ({unit})</div>
+  <div class="grid grid-cols-1 gap-3" style="margin:0.5rem 0">
+    <div class="label whitespace-normal mb-1">Correct weight ({unit})</div>
     <Strip value={weight} {step} onchange={(w) => (weight = w)} />
-    <div class="label">Correct reps</div>
+    <div class="label whitespace-normal mb-1">Correct reps</div>
     <Strip value={reps} step={1} min={1} onchange={(r) => (reps = r)} />
-    {#if error}<p class="error" role="alert">{error}</p>{/if}
-    <div class="row">
+    {#if error}<p class="text-error" role="alert">{error}</p>{/if}
+    <div class="flex flex-wrap items-center gap-2">
       <button class="btn grow" onclick={() => (open = false)}>Cancel</button>
       <button class="btn btn-primary grow" onclick={save}>Save correction</button>
     </div>

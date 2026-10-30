@@ -79,19 +79,19 @@
   const logged = $derived(setsFor(session, exercise.id!))
 </script>
 
-<div class="vstack">
+<div class="grid grid-cols-1 gap-3">
   {#if suggestion}
-    <p class="card">
-      <strong>Suggestion</strong> <span class="muted">({suggestion.stage})</span>:
+    <p class="card card-border bg-base-100 p-4">
+      <strong>Suggestion</strong> <span class="text-base-content/60 text-sm">({suggestion.stage})</span>:
       {suggestion.weight === null ? 'pick a weight' : fmtWeight(suggestion.weight, suggestion.unit)} × {suggestion.reps}
-      <span class="muted"> — {suggestion.reason}</span>
+      <span class="text-base-content/60 text-sm"> — {suggestion.reason}</span>
     </p>
   {/if}
   {#if chips.options.length === 0}
-    <p class="muted">No history for this Exercise yet. Pick a conservative weight.</p>
+    <p class="text-base-content/60 text-sm">No history for this Exercise yet. Pick a conservative weight.</p>
   {:else}
     <div>
-      <div class="label">Weight</div>
+      <div class="label whitespace-normal mb-1">Weight</div>
       <Chips
         options={chips.options}
         selected={weight}
@@ -105,23 +105,23 @@
   <Strip value={weight} {step} onchange={(w) => (pickedWeight = w)} fmt={(w) => String(w)} />
 
   <div>
-    <div class="label">Reps</div>
+    <div class="label whitespace-normal mb-1">Reps</div>
     <Chips options={reps} selected={repCount} recommended={recReps} onpick={(r) => (pickedReps = r)} />
   </div>
   <Strip value={repCount} step={1} min={1} onchange={(r) => (pickedReps = r)} />
 
-  <div class="row">
-    <button class="chip" class:on={warmup} aria-pressed={warmup} onclick={() => (warmup = !warmup)}>Warmup</button>
+  <div class="flex flex-wrap items-center gap-2">
+    <button class="btn" class:btn-primary={warmup} aria-pressed={warmup} onclick={() => (warmup = !warmup)}>Warmup</button>
     <button class="btn btn-primary grow" disabled={!canLog} onclick={log}>
       Log {warmup ? 'warmup' : 'set'} · {fmtWeight(weight, unit)} × {repCount}
     </button>
   </div>
-  {#if error}<p class="error" role="alert">{error}</p>{/if}
+  {#if error}<p class="text-error" role="alert">{error}</p>{/if}
 
   {#if askBaseline}
-    <div class="card vstack" role="alertdialog">
+    <div class="card card-border bg-base-100 p-4 grid grid-cols-1 gap-3" role="alertdialog">
       <div>That was well off the Suggestion, and it's your first time on this Exercise at <strong>{session.location}</strong>.</div>
-      <div class="row">
+      <div class="flex flex-wrap items-center gap-2">
         <button class="btn grow" onclick={() => { askBaseline = false; answerBaseline(session.id!, exercise.id!, 'same') }}>Same as before</button>
         <button class="btn btn-primary grow" onclick={() => { askBaseline = false; answerBaseline(session.id!, exercise.id!, 'new') }}>Feels different (new baseline here)</button>
       </div>
@@ -129,7 +129,7 @@
   {/if}
 
   {#if logged.length}
-    <div class="card">
+    <div class="card card-border bg-base-100 p-4">
       {#each logged as s, i (s.id)}
         <SetRow
           set={s}

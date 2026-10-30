@@ -48,29 +48,29 @@
   }
 </script>
 
-<div class="vstack">
-  <label class="field">
-    <span>Name</span>
-    <input type="text" bind:value={form.name} placeholder="e.g. Leg Press" />
+<div class="grid grid-cols-1 gap-3">
+  <label class="grid gap-1">
+    <span class="label">Name</span>
+    <input class="input w-full" type="text" bind:value={form.name} placeholder="e.g. Leg Press" />
   </label>
 
   <div>
-    <div class="label">Equipment</div>
+    <div class="label whitespace-normal mb-1">Equipment</div>
     <Chips options={EQUIPMENT} selected={form.equipment} onpick={(o) => (form.equipment = o)} />
   </div>
 
   <div>
-    <div class="label flex items-center gap-1">
+    <div class="label mb-1 gap-1">
       Kind
       <button
         type="button"
-        class="btn btn-circle btn-ghost btn-xs !min-h-8 !h-8 !w-8 shadow-none"
+        class="btn btn-circle btn-ghost btn-sm"
         aria-label="What do these mean?"
         aria-expanded={showKindHelp}
         onclick={() => (showKindHelp = !showKindHelp)}>ⓘ</button>
     </div>
     {#if showKindHelp}
-      <div class="card vstack mb-2 text-sm" role="note">
+      <div class="card card-border bg-base-100 p-4 grid grid-cols-1 gap-3 mb-2 text-sm" role="note">
         {#each KINDS as k (k.id)}
           <div><strong>{k.label}.</strong> {k.help}</div>
         {/each}
@@ -85,7 +85,7 @@
   </div>
 
   <div>
-    <div class="label">Smallest weight jump ({form.stepUnit})</div>
+    <div class="label whitespace-normal mb-1">Smallest weight jump ({form.stepUnit})</div>
     <Chips
       options={stepOptions(form.stepUnit as Unit)}
       selected={form.step}
@@ -95,24 +95,24 @@
   </div>
 
   {#if form.equipment !== 'bodyweight'}
-    <label class="field">
-      <span>Starting weight ({form.stepUnit})</span>
-      <input type="text" inputmode="decimal" bind:value={startText} placeholder="e.g. 45" />
-      <span class="muted">Your first Session starts here. After that the app suggests from your history.</span>
+    <label class="grid gap-1">
+      <span class="label">Starting weight ({form.stepUnit})</span>
+      <input class="input w-full" type="text" inputmode="decimal" bind:value={startText} placeholder="e.g. 45" />
+      <span class="text-base-content/60 text-sm">Your first Session starts here. After that the app suggests from your history.</span>
     </label>
   {/if}
 
   <div>
-    <div class="label">Rep range: low</div>
+    <div class="label whitespace-normal mb-1">Rep range: low</div>
     <Strip value={form.repMin} step={1} min={1} max={form.repMax} onchange={(n) => (form.repMin = n)} />
   </div>
   <div>
-    <div class="label">Rep range: high</div>
+    <div class="label whitespace-normal mb-1">Rep range: high</div>
     <Strip value={form.repMax} step={1} min={form.repMin} max={50} onchange={(n) => (form.repMax = n)} />
   </div>
 
   <div>
-    <div class="label">Rest</div>
+    <div class="label whitespace-normal mb-1">Rest</div>
     <Chips
       options={REST_CATEGORIES}
       selected={form.restCategory}
@@ -122,18 +122,18 @@
   </div>
 
   <div>
-    <div class="label">Main muscle</div>
+    <div class="label whitespace-normal mb-1">Main muscle</div>
     <Chips options={MUSCLES} selected={form.muscle} onpick={(m) => (form.muscle = form.muscle === m ? undefined : m)} />
   </div>
 
   <div>
-    <div class="label">Joints it loads (for Pain flags)</div>
+    <div class="label whitespace-normal mb-1">Joints it loads (for Pain flags)</div>
     <Chips options={JOINTS} selected={form.bodyAreas} onpick={toggleArea} />
   </div>
 
-  {#if error}<p class="error" role="alert">{error}</p>{/if}
+  {#if error}<p class="text-error" role="alert">{error}</p>{/if}
 
-  <div class="row">
+  <div class="flex flex-wrap items-center gap-2">
     <button class="btn grow" onclick={ondone}>Cancel</button>
     <button class="btn btn-primary grow" onclick={save}>Save</button>
   </div>

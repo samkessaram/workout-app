@@ -8,7 +8,7 @@
 </script>
 
 {#if show}
-  <div class="card row" role="status">
+  <div class="card card-border bg-base-100 p-4 flex flex-wrap items-center gap-2" role="status">
     <span class="grow">It's been 2+ weeks since your last backup.</span>
     {#if onopen}<button class="btn btn-primary" onclick={onopen}>Back up</button>{/if}
   </div>

@@ -33,7 +33,7 @@
 
 <section>
   <h2>Data</h2>
-  <div class="vstack">
+  <div class="grid grid-cols-1 gap-3">
     <button class="btn btn-block" onclick={() => (view = 'backup')}>Export / restore ›</button>
     <button class="btn btn-block" onclick={() => (view = 'legacy')}>Import old S3 history ›</button>
   </div>
@@ -41,15 +41,16 @@
 
 <section>
   <h2>Units</h2>
-  <div class="seg" role="radiogroup" aria-label="Weight unit">
+  <div class="join w-full" role="radiogroup" aria-label="Weight unit">
     {#each ['lb', 'kg'] as const as u}
       <button
         role="radio"
+        class="btn join-item flex-1"
         aria-checked={prefs.unit === u}
-        class:on={prefs.unit === u}
+        class:btn-primary={prefs.unit === u}
         onclick={() => setUnit(u)}>{u}</button>
     {/each}
   </div>
-  <p class="muted">Changes display and input only. Logged weights keep the unit they were entered in.</p>
+  <p class="text-base-content/60 text-sm">Changes display and input only. Logged weights keep the unit they were entered in.</p>
 </section>
 {/if}

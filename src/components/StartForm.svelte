@@ -22,21 +22,21 @@
   }
 </script>
 
-<div class="vstack">
+<div class="grid grid-cols-1 gap-3">
   <div>
-    <div class="label">Session type</div>
+    <div class="label whitespace-normal mb-1">Session type</div>
     <Chips options={SESSION_TYPES} selected={type} onpick={(t) => (type = t)} />
   </div>
   <div>
-    <div class="label">Location</div>
+    <div class="label whitespace-normal mb-1">Location</div>
     <Chips options={LOCATIONS} selected={location} onpick={(l) => (location = l)} />
   </div>
   <div>
-    <div class="label">With a trainer</div>
+    <div class="label whitespace-normal mb-1">With a trainer</div>
     <Chips options={['no', 'yes']} selected={trainer ? 'yes' : 'no'} onpick={(v) => setTrainer(v === 'yes')} />
   </div>
   <div>
-    <div class="label">Rest timer</div>
+    <div class="label whitespace-normal mb-1">Rest timer</div>
     <Chips options={['on', 'off']} selected={timer ? 'on' : 'off'} onpick={(v) => (timer = v === 'on')} />
   </div>
   <button class="btn btn-primary btn-block" onclick={start}>Start Session</button>

@@ -122,8 +122,8 @@
 {#if prompt}
   <RoutinePrompt routine={prompt.routine} diff={prompt.diff} exercises={$exercises ?? []} ondone={onclosed} />
 {:else if $session}
-  <div class="row">
-    <div class="grow muted">{$session.type} · {$session.location}{$session.trainer ? ' · trainer' : ''}</div>
+  <div class="flex flex-wrap items-center gap-2">
+    <div class="grow text-base-content/60 text-sm">{$session.type} · {$session.location}{$session.trainer ? ' · trainer' : ''}</div>
     <button class="btn" onclick={close}>Done for today</button>
   </div>
 
@@ -133,20 +133,20 @@
     <h2>Add Exercise</h2>
     <ExercisePicker exclude={$session.exerciseIds} onpick={addExercise} oncancel={() => (adding = false)} />
   {:else if current}
-    <div class="row" style="margin-top:0.75rem">
+    <div class="flex flex-wrap items-center gap-2" style="margin-top:0.75rem">
       <h1 class="grow" style="margin:0">{exerciseLabel(current)}</h1>
     </div>
     {#if targetSets}
-      <p class="muted">
+      <p class="text-base-content/60 text-sm">
         {deloadActive ? 'Deload: ' : ''}Target {targetSets} × {current.repMin}-{current.repMax} ·
         {workingSets(setsFor($session, current.id!)).length} done
       </p>
     {/if}
     {#if stoppedInSession(current.id!, $session, $flags ?? [])}
-      <p class="card error" role="alert">Sharp pain flagged — you marked this movement to stop today.</p>
+      <p class="card card-border bg-base-100 p-4 text-error" role="alert">Sharp pain flagged — you marked this movement to stop today.</p>
     {/if}
     <PainFlagList flags={flagsRelevantTo(current, $flags ?? [])} title="Open Pain flags here" />
-    <div class="row" style="margin:0.5rem 0">
+    <div class="flex flex-wrap items-center gap-2" style="margin:0.5rem 0">
       <PainFlagPanel exercise={current} />
     </div>
     <NoteChips
@@ -165,7 +165,7 @@
       <Brief {brief} exercises={$exercises ?? []} />
     {/if}
     <h2>What's next?</h2>
-    <div class="vstack">
+    <div class="grid grid-cols-1 gap-3">
       {#each remaining as id (id)}
         {@const ex = $exercises?.find((e) => e.id === id)}
         {#if ex}
@@ -175,13 +175,13 @@
       <button class="btn" onclick={() => (adding = true)}>+ Add Exercise</button>
       <button class="btn" class:primary={remaining.length === 0} onclick={close}>Done for today</button>
       {#if finished.length}
-        <div class="label">Done</div>
+        <div class="label whitespace-normal mb-1">Done</div>
         {#each finished as id (id)}
           {@const ex = $exercises?.find((e) => e.id === id)}
           {#if ex}
             <button class="btn" style="text-align:left" onclick={() => (currentId = id)}>
               ✓ {exerciseLabel(ex)}
-              <span class="muted"> · {workingSets(setsFor($session, id)).length} sets</span>
+              <span class="text-base-content/60 text-sm"> · {workingSets(setsFor($session, id)).length} sets</span>
             </button>
           {/if}
         {/each}
