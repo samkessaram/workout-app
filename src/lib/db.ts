@@ -2,7 +2,7 @@ import Dexie, { type EntityTable } from 'dexie'
 
 export type Unit = 'lb' | 'kg'
 export type Equipment = 'machine' | 'dumbbell' | 'cable' | 'barbell' | 'bodyweight'
-export type SessionType = 'upper' | 'lower' | 'rowing' | 'other'
+export type SessionType = 'upper' | 'lower' | 'other'
 export type RestCategory = 'heavy' | 'moderate' | 'isolation'
 export type ExerciseKind = 'compound-lower' | 'compound-upper' | 'machine' | 'isolation'
 
@@ -34,6 +34,8 @@ export interface RoutineEntry {
 export interface Routine {
   id?: number
   sessionType: SessionType
+  /** What the lifter calls it, e.g. "Upper B". Older Routines have none and show as their Session type. */
+  name?: string
   entries: RoutineEntry[]
 }
 
@@ -68,6 +70,8 @@ export interface Session {
   startedAt: number
   closedAt?: number
   /** Exercises in the order planned or worked. */
+  /** The Routine this Session started from. Absent on Sessions logged before Routines were named. */
+  routineId?: number
   exerciseIds: number[]
   sets: SessionSet[]
   exerciseChips?: Record<number, string[]>

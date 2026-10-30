@@ -94,3 +94,31 @@ export async function listExercises(store = db): Promise<Exercise[]> {
   const all = await store.exercises.toArray()
   return all.sort((a, b) => exerciseLabel(a).localeCompare(exerciseLabel(b)))
 }
+
+/** How many Sessions have logged Sets for this Exercise. */
+export async function exerciseSessionCount(id: number, store = db): Promise<number> {
+  return (await store.sessions.toArray()).filter((s) => s.sets.some((x) => x.exerciseId === id)).length
+}
+
+/**
+ * Removes an Exercise with its Routine entries, planned slots, Pain flags and Suggestion log.
+ * Refuses when it has logged Sets: those live inside Sessions and would drop out of History.
+ */
+export async function deleteExercise(id: number, store = db): Promise<void> {
+  await store.transaction('rw', [store.exercises, store.routines, store.sessions, store.painFlags, store.suggestionLog], async () => {
+    if ((await exerciseSessionCount(id, store)) > 0) {
+      throw new Error('This Exercise has logged Sets, so it can\'t be deleted without erasing that history')
+    }
+    for (const r of await store.routines.toArray()) {
+      if (r.entries.some((e) => e.exerciseId === id)) {
+        await store.routines.put({ ...r, entries: r.entries.filter((e) => e.exerciseId !== id) })
+      }
+    }
+    for (const s of await store.sessions.toArray()) {
+      if (s.exerciseIds.includes(id)) await store.sessions.put({ ...s, exerciseIds: s.exerciseIds.filter((x) => x !== id) })
+    }
+    await store.painFlags.where('exerciseId').equals(id).delete()
+    await store.suggestionLog.where('exerciseId').equals(id).delete()
+    await store.exercises.delete(id)
+  })
+}

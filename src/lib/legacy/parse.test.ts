@@ -46,8 +46,8 @@ describe('legacy parser (synthetic fixtures)', () => {
   it('takes the date and type from the file name when the record lacks them', () => {
     const r = parse('sessions/2026-02-03-lower.json', { exercises: [{ name: 'Squat', sets: [{ weight: 100, reps: 5 }] }] })
     expect(r.sessions[0]).toMatchObject({ date: '2026-02-03', type: 'lower' })
-    const folder = parse('sessions/rowing/2026-02-04.json', { exercises: [{ name: 'Erg', sets: [{ weight: 0, reps: 1 }] }] })
-    expect(folder.sessions[0]).toMatchObject({ date: '2026-02-04', type: 'rowing' })
+    const folder = parse('sessions/other/2026-02-04.json', { exercises: [{ name: 'Erg', sets: [{ weight: 0, reps: 1 }] }] })
+    expect(folder.sessions[0]).toMatchObject({ date: '2026-02-04', type: 'other' })
   })
 
   it('unwraps records whose body is a JSON string, and arrays of sessions', () => {

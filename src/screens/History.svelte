@@ -4,7 +4,8 @@
   import { exerciseLabel } from '../lib/exercises'
   import { exerciseHistory, type ExerciseSession } from '../lib/history'
   import { summarizeSets } from '../lib/historyView'
-  import { setsFor } from '../lib/sessions'
+  import { clearRest } from '../lib/rest.svelte'
+  import { deleteSession, setsFor } from '../lib/sessions'
   import Chips from '../components/Chips.svelte'
   import SetRow from '../components/SetRow.svelte'
 
@@ -17,6 +18,7 @@
   let sessionId = $state<number | null>(null)
   let exerciseId = $state<number | null>(null)
   let past = $state<ExerciseSession[]>([])
+  let confirmDelete = $state(false)
 
   // Re-read whenever the Session data changes, so Corrections show up straight away.
   $effect(() => {
@@ -25,6 +27,15 @@
     if (id === null) past = []
     else exerciseHistory(id, db).then((h) => (past = h.reverse()))
   })
+
+  async function remove() {
+    const id = sessionId
+    if (id === null) return
+    if (session?.closedAt === undefined) clearRest()
+    await deleteSession(id, db)
+    confirmDelete = false
+    sessionId = null
+  }
 
   const sessions = $derived($data?.sessions ?? [])
   const exercises = $derived($data?.exercises ?? [])
@@ -64,6 +75,17 @@
     {:else}
       <p class="text-base-content/60 text-sm">No sets were logged.</p>
     {/each}
+    {#if confirmDelete}
+      <div class="card card-border bg-base-100 p-4 grid grid-cols-1 gap-3" role="alertdialog">
+        <div>Delete this Session and all its Sets? This can't be undone, and progression forgets it.</div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button class="btn grow" onclick={() => (confirmDelete = false)}>Cancel</button>
+          <button class="btn btn-error grow" onclick={remove}>Yes, delete</button>
+        </div>
+      </div>
+    {:else}
+      <button class="btn btn-error btn-outline" onclick={() => (confirmDelete = true)}>Delete Session</button>
+    {/if}
   </div>
 {:else if exercise}
   <div class="flex flex-wrap items-center gap-2">

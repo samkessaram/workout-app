@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { loadPrefs } from './lib/settings.svelte'
+  import { seedExercises } from './lib/exerciseSeed'
+  import { loadPrefs, prefs } from './lib/settings.svelte'
   import { ensureFirstRun, requestPersistence } from './lib/backup'
   import { clearRest, loadRest } from './lib/rest.svelte'
   import { autoCloseStale } from './lib/sessions'
@@ -26,6 +27,7 @@
     await ensureFirstRun()
     void requestPersistence()
     await loadPrefs()
+    await seedExercises(prefs.unit)
     await loadRest()
     ready = true
   })

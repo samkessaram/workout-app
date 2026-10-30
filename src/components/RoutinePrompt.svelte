@@ -1,7 +1,7 @@
 <script lang="ts">
   import { db, type Exercise, type Routine } from '../lib/db'
   import { exerciseLabel } from '../lib/exercises'
-  import { applyDiff, saveRoutine, type RoutineDiff } from '../lib/routines'
+  import { applyDiff, routineLabel, saveRoutine, type RoutineDiff } from '../lib/routines'
 
   let {
     routine,
@@ -19,7 +19,7 @@
   }
 </script>
 
-<h2>Update the {routine.sessionType} Routine?</h2>
+<h2>Update {routineLabel(routine)}?</h2>
 <div class="grid grid-cols-1 gap-3">
   {#if diff.added.length}<p class="card card-border bg-base-100 p-4">Added: {names(diff.added).join(', ')}</p>{/if}
   {#if diff.skipped.length}<p class="card card-border bg-base-100 p-4">Skipped: {names(diff.skipped).join(', ')}</p>{/if}

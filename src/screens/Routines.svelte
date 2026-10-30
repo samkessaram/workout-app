@@ -1,30 +1,56 @@
 <script lang="ts">
   import { liveQuery } from 'dexie'
-  import { db, type Routine, type RoutineEntry, type SessionType } from '../lib/db'
+  import { db, type RoutineEntry, type SessionType } from '../lib/db'
   import { exerciseLabel, REST_CATEGORIES, REST_SECONDS } from '../lib/exercises'
-  import { entryFor, getRoutine, moveEntry, saveRoutine } from '../lib/routines'
+  import { deleteRoutine, entryFor, listRoutines, moveEntry, routineLabel, saveRoutine } from '../lib/routines'
   import { SESSION_TYPES } from '../lib/sessions'
   import Chips from '../components/Chips.svelte'
   import ExercisePicker from '../components/ExercisePicker.svelte'
   import Strip from '../components/Strip.svelte'
 
-  let type = $state<SessionType>('lower')
-  let routine = $state<Routine>({ sessionType: 'lower', entries: [] })
+  let openId = $state<number | null>(null)
   let editing = $state<number | null>(null)
   let adding = $state(false)
+  let creating = $state(false)
+  let newName = $state('')
+  let newType = $state<SessionType | undefined>()
+  let confirmDelete = $state(false)
 
   const exercises = liveQuery(() => db.exercises.toArray())
+  const all = liveQuery(() => listRoutines())
 
-  $effect(() => {
-    const t = type
+  const routines = $derived(
+    [...($all ?? [])].sort((a, b) => SESSION_TYPES.indexOf(a.sessionType) - SESSION_TYPES.indexOf(b.sessionType) || a.id! - b.id!),
+  )
+  const routine = $derived(routines.find((r) => r.id === openId))
+
+  function open(id: number | null) {
+    openId = id
     editing = null
-    getRoutine(t).then((r) => (routine = r ?? { sessionType: t, entries: [] }))
-  })
+    adding = false
+    confirmDelete = false
+  }
 
   async function persist(entries: RoutineEntry[]) {
-    routine = { ...routine, entries }
-    const id = await saveRoutine($state.snapshot(routine))
-    routine.id = id
+    if (routine) await saveRoutine({ ...$state.snapshot(routine), entries })
+  }
+
+  async function rename(name: string) {
+    if (routine && name.trim() && name.trim() !== routine.name) await saveRoutine({ ...$state.snapshot(routine), name: name.trim() })
+  }
+
+  async function create() {
+    if (!newType || !newName.trim()) return
+    const id = await saveRoutine({ sessionType: newType, name: newName.trim(), entries: [] })
+    creating = false
+    newName = ''
+    newType = undefined
+    open(id)
+  }
+
+  async function remove() {
+    if (routine) await deleteRoutine(routine.id!)
+    open(null)
   }
 
   const label = (id: number) => {
@@ -33,24 +59,30 @@
   }
 
   function patch(i: number, change: Partial<RoutineEntry>) {
-    persist(routine.entries.map((e, j) => (j === i ? { ...e, ...change } : e)))
+    if (routine) persist(routine.entries.map((e, j) => (j === i ? { ...e, ...change } : e)))
   }
 
   async function add(id: number) {
     const ex = $exercises?.find((x) => x.id === id)
-    if (ex) await persist([...routine.entries, entryFor(ex)])
+    if (ex && routine) await persist([...routine.entries, entryFor(ex)])
     adding = false
   }
 </script>
 
-<h1>Routines</h1>
-<Chips options={SESSION_TYPES} selected={type} onpick={(t) => (type = t)} />
-
-{#if adding}
-  <h2>Add to {type} Routine</h2>
+{#if routine && adding}
+  <h2>Add to {routineLabel(routine)}</h2>
   <ExercisePicker exclude={routine.entries.map((e) => e.exerciseId)} onpick={add} oncancel={() => (adding = false)} />
-{:else}
+{:else if routine}
+  <div class="flex flex-wrap items-center gap-2">
+    <button class="btn" onclick={() => open(null)}>‹ Routines</button>
+    <h1 class="grow" style="margin:0">{routineLabel(routine)}</h1>
+  </div>
+  <p class="text-base-content/60 text-sm">{routine.sessionType}</p>
   <div class="grid grid-cols-1 gap-3" style="margin-top:1rem">
+    <label class="grid gap-1">
+      <span class="label">Name</span>
+      <input class="input w-full" type="text" value={routineLabel(routine)} onchange={(e) => rename(e.currentTarget.value)} />
+    </label>
     {#each routine.entries as e, i (e.exerciseId)}
       <div class="card card-border bg-base-100 p-4 grid grid-cols-1 gap-3">
         <div class="flex flex-wrap items-center gap-2">
@@ -60,6 +92,7 @@
           </div>
           <button class="btn" aria-label="Move up" disabled={i === 0} onclick={() => persist(moveEntry(routine.entries, i, -1))}>↑</button>
           <button class="btn" aria-label="Move down" disabled={i === routine.entries.length - 1} onclick={() => persist(moveEntry(routine.entries, i, 1))}>↓</button>
+          <button class="btn btn-error btn-outline" aria-label={`Remove ${label(e.exerciseId)}`} onclick={() => persist(routine.entries.filter((_, j) => j !== i))}>✕</button>
         </div>
         {#if editing === i}
           <div>
@@ -83,17 +116,52 @@
               fmt={(c) => `${c} · ${REST_SECONDS[c]}s`}
             />
           </div>
-          <div class="flex flex-wrap items-center gap-2">
-            <button class="btn btn-error btn-outline grow" onclick={() => persist(routine.entries.filter((_, j) => j !== i))}>Remove</button>
-            <button class="btn grow" onclick={() => (editing = null)}>Close</button>
-          </div>
+          <button class="btn" onclick={() => (editing = null)}>Close</button>
         {:else}
           <button class="btn" onclick={() => (editing = i)}>Edit</button>
         {/if}
       </div>
     {:else}
-      <p class="text-base-content/60 text-sm">No Exercises in the {type} Routine yet.</p>
+      <p class="text-base-content/60 text-sm">No Exercises in {routineLabel(routine)} yet.</p>
     {/each}
     <button class="btn btn-primary btn-block" onclick={() => (adding = true)}>+ Add Exercise</button>
+    {#if confirmDelete}
+      <div class="card card-border bg-base-100 p-4 grid grid-cols-1 gap-3" role="alertdialog">
+        <div>Delete {routineLabel(routine)}? Past Sessions keep their Sets.</div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button class="btn grow" onclick={() => (confirmDelete = false)}>Cancel</button>
+          <button class="btn btn-error grow" onclick={remove}>Yes, delete</button>
+        </div>
+      </div>
+    {:else}
+      <button class="btn btn-error btn-outline" onclick={() => (confirmDelete = true)}>Delete Routine</button>
+    {/if}
+  </div>
+{:else}
+  <h1>Routines</h1>
+  <div class="grid grid-cols-1 gap-3">
+    {#each routines as r (r.id)}
+      <button class="card card-border bg-base-100 p-4" style="text-align:left" onclick={() => open(r.id!)}>
+        <div>{routineLabel(r)}</div>
+        <div class="text-base-content/60 text-sm">{r.sessionType} · {r.entries.length} {r.entries.length === 1 ? 'Exercise' : 'Exercises'}</div>
+      </button>
+    {:else}
+      <p class="text-base-content/60 text-sm">No Routines yet.</p>
+    {/each}
+    {#if creating}
+      <div class="card card-border bg-base-100 p-4 grid grid-cols-1 gap-3">
+        <input class="input w-full" type="text" placeholder="Name, e.g. Upper B" aria-label="Routine name" bind:value={newName} />
+        <div>
+          <div class="label whitespace-normal mb-1">Session type</div>
+          <Chips options={SESSION_TYPES} selected={newType} onpick={(t) => (newType = t)} />
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button class="btn grow" onclick={() => { creating = false; newName = ''; newType = undefined }}>Cancel</button>
+          <button class="btn btn-primary grow" disabled={!newType || !newName.trim()} onclick={create}>Create</button>
+        </div>
+      </div>
+    {:else}
+      <button class="btn btn-primary btn-block" onclick={() => (creating = true)}>+ New Routine</button>
+    {/if}
   </div>
 {/if}

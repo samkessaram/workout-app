@@ -13,7 +13,7 @@ One workout on one date, of one Session type, at one Location.
 _Avoid_: Workout, visit
 
 **Session type**:
-The category of a Session: upper, lower, rowing, or other.
+The category of a Session: upper, lower, or other.
 _Avoid_: Split, day
 
 **Location**:
@@ -49,5 +49,5 @@ The weight and rep target the app proposes for an Exercise, with a one-line reas
 _Avoid_: Prescription, recommendation
 
 **Routine**:
-The editable, ordered list of Exercises planned for a Session type, each with target sets, a rep range and a rest category.
+A named, editable, ordered list of Exercises planned for a Session type, each with target sets, a rep range and a rest category. A Session type can have several (Upper A and Upper B); a Session starts from one, and the app offers the one done longest ago.
 _Avoid_: Plan, program, template

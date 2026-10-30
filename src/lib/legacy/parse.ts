@@ -46,7 +46,7 @@ export interface ParseResult {
   warnings: Problem[]
 }
 
-const TYPES: SessionType[] = ['upper', 'lower', 'rowing', 'other']
+const TYPES: SessionType[] = ['upper', 'lower', 'other']
 const EQUIPMENT: Equipment[] = ['machine', 'dumbbell', 'cable', 'barbell', 'bodyweight']
 const DATE_IN_NAME = /(\d{4})-(\d{2})-(\d{2})/
 

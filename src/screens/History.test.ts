@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen } from '@testing-library/svelte'
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/svelte'
 import { afterEach, describe, expect, it } from 'vitest'
 import { db } from '../lib/db'
 import { newExercise, saveExercise } from '../lib/exercises'
@@ -56,6 +56,20 @@ describe('History', () => {
     await fireEvent.click((await screen.findAllByRole('button', { name: /lower/ }))[0])
     await screen.findByText(/Set 1: 170 lb × 10/)
     expect(screen.getByText(/corrected from 180 lb × 10/)).toBeTruthy()
+  })
+
+  it('deletes a Session after confirmation and drops it from history', async () => {
+    await seed()
+    render(History)
+    await fireEvent.click((await screen.findAllByRole('button', { name: /lower/ }))[0])
+    await fireEvent.click(await screen.findByRole('button', { name: 'Delete Session' }))
+    await fireEvent.click(await screen.findByRole('button', { name: 'Cancel' }))
+    expect(await db.sessions.count()).toBe(2)
+    await fireEvent.click(screen.getByRole('button', { name: 'Delete Session' }))
+    await fireEvent.click(await screen.findByRole('button', { name: 'Yes, delete' }))
+    await waitFor(() => expect(screen.getAllByRole('button', { name: /lower/ })).toHaveLength(1))
+    expect(screen.getByRole('button', { name: /lower/ }).textContent).toContain('2026-01-05')
+    expect(await db.sessions.count()).toBe(1)
   })
 
   it('says so when there is nothing yet', async () => {

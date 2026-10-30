@@ -1,7 +1,7 @@
-import { getRoutine } from './routines'
+import { getRoutine, nextRoutine } from './routines'
 import { db, type Session, type SessionSet, type SessionType, type Unit } from './db'
 
-export const SESSION_TYPES: SessionType[] = ['upper', 'lower', 'rowing', 'other']
+export const SESSION_TYPES: SessionType[] = ['upper', 'lower', 'other']
 export const LOCATIONS = ['gym', 'new gym', 'home']
 export const AUTO_CLOSE_MS = 6 * 60 * 60 * 1000
 
@@ -15,9 +15,12 @@ export interface StartOptions {
   trainer: boolean
   timer: boolean
   exerciseIds?: number[]
+  /** Which Routine to start from. Defaults to the next one in the rotation for the type. */
+  routineId?: number
 }
 
 export async function startSession(opts: StartOptions, store = db, now = Date.now()): Promise<number> {
+  const routine = opts.routineId !== undefined ? await getRoutine(opts.routineId, store) : await nextRoutine(opts.type, store)
   const session: Session = {
     date: todayStr(new Date(now)),
     type: opts.type,
@@ -25,7 +28,8 @@ export async function startSession(opts: StartOptions, store = db, now = Date.no
     trainer: opts.trainer,
     timer: opts.timer,
     startedAt: now,
-    exerciseIds: opts.exerciseIds ?? (await getRoutine(opts.type, store))?.entries.map((e) => e.exerciseId) ?? [],
+    routineId: routine?.id,
+    exerciseIds: opts.exerciseIds ?? routine?.entries.map((e) => e.exerciseId) ?? [],
     sets: [],
   }
   return (await store.sessions.add(session)) as number
@@ -118,6 +122,14 @@ export async function correctSet(
 export async function closeSession(sessionId: number, store = db, now = Date.now()): Promise<Session> {
   return mutate(sessionId, store, (s) => {
     s.closedAt = now
+  })
+}
+
+/** Removes a Session and its Suggestion log entries. Permanent: nothing is kept for history or progression. */
+export async function deleteSession(sessionId: number, store = db): Promise<void> {
+  await store.transaction('rw', store.sessions, store.suggestionLog, async () => {
+    await store.suggestionLog.where('sessionId').equals(sessionId).delete()
+    await store.sessions.delete(sessionId)
   })
 }
 

@@ -2,7 +2,9 @@ import 'fake-indexeddb/auto'
 import { describe, expect, it } from 'vitest'
 import { WorkoutDB } from './db'
 import { newExercise, saveExercise } from './exercises'
-import { applyDiff, entryFor, getRoutine, moveEntry, routineDiff, saveRoutine } from './routines'
+import {
+  applyDiff, deleteRoutine, entryFor, getRoutine, listRoutines, moveEntry, nextRoutine, routineDiff, routineForSession, routineLabel, saveRoutine,
+} from './routines'
 import { addSet, startSession } from './sessions'
 
 const set = (exerciseId: number) => ({ exerciseId, weight: 100, unit: 'lb' as const, reps: 8, warmup: false })
@@ -17,17 +19,63 @@ async function seed(store: WorkoutDB) {
 }
 
 describe('routines', () => {
-  it('saves one Routine per Session type and a new Session loads it in order', async () => {
+  it('keeps several named Routines per Session type and a new Session loads the chosen one', async () => {
     const store = new WorkoutDB('r-load')
     const { ids, exercises } = await seed(store)
-    await saveRoutine({ sessionType: 'lower', entries: [ids[2], ids[0]].map((id) => entryFor(exercises.find((e) => e.id === id)!)) }, store)
-    await saveRoutine({ sessionType: 'lower', entries: [entryFor(exercises[1])] }, store)
+    const of = (...picks: number[]) => picks.map((id) => entryFor(exercises.find((e) => e.id === id)!))
+    const a = await saveRoutine({ sessionType: 'lower', name: 'Lower A', entries: of(ids[2], ids[0]) }, store)
+    const b = await saveRoutine({ sessionType: 'lower', name: 'Lower B', entries: of(ids[1]) }, store)
+    await saveRoutine({ sessionType: 'upper', name: 'Upper A', entries: of(ids[3]) }, store)
+    expect((await listRoutines('lower', store)).map((r) => r.name)).toEqual(['Lower A', 'Lower B'])
+    const base = { type: 'lower' as const, location: 'gym', trainer: false, timer: true }
+    const sid = await startSession({ ...base, routineId: a }, store)
+    expect(await store.sessions.get(sid)).toMatchObject({ routineId: a, exerciseIds: [ids[2], ids[0]] })
+    const other = await startSession({ ...base, routineId: b }, store)
+    expect((await store.sessions.get(other))!.exerciseIds).toEqual([ids[1]])
+    const none = await startSession({ ...base, type: 'other' }, store)
+    expect((await store.sessions.get(none))!.exerciseIds).toEqual([])
+  })
+
+  it('offers the Routine done longest ago next, so a rotation advances', async () => {
+    const store = new WorkoutDB('r-rotate')
+    const { ids, exercises } = await seed(store)
+    const entries = [entryFor(exercises.find((e) => e.id === ids[0])!)]
+    const a = await saveRoutine({ sessionType: 'upper', name: 'Upper A', entries }, store)
+    const b = await saveRoutine({ sessionType: 'upper', name: 'Upper B', entries }, store)
+    const base = { type: 'upper' as const, location: 'gym', trainer: false, timer: false }
+    expect((await nextRoutine('upper', store))!.id).toBe(a)
+    await startSession({ ...base, routineId: a }, store, 1000)
+    expect((await nextRoutine('upper', store))!.id).toBe(b)
+    await startSession({ ...base, routineId: b }, store, 2000)
+    expect((await nextRoutine('upper', store))!.id).toBe(a)
+    expect(await nextRoutine('lower', store)).toBeUndefined()
+    const sid = await startSession(base, store, 3000) // no choice made: starts from the next in rotation
+    expect((await store.sessions.get(sid))!.routineId).toBe(a)
+  })
+
+  it('labels unnamed Routines by Session type, and renames and deletes', async () => {
+    const store = new WorkoutDB('r-name')
+    expect(routineLabel({ sessionType: 'lower' })).toBe('Lower')
+    expect(routineLabel({ sessionType: 'lower', name: '  Lower B ' })).toBe('Lower B')
+    const id = await saveRoutine({ sessionType: 'lower', name: 'Legs', entries: [] }, store)
+    await saveRoutine({ ...(await store.routines.get(id))!, name: 'Heavy legs' }, store)
     expect(await store.routines.count()).toBe(1)
-    await saveRoutine({ sessionType: 'lower', entries: [ids[2], ids[0]].map((id) => entryFor(exercises.find((e) => e.id === id)!)) }, store)
-    const sid = await startSession({ type: 'lower', location: 'gym', trainer: false, timer: true }, store)
-    expect((await store.sessions.get(sid))!.exerciseIds).toEqual([ids[2], ids[0]])
-    const upper = await startSession({ type: 'upper', location: 'gym', trainer: false, timer: true }, store)
-    expect((await store.sessions.get(upper))!.exerciseIds).toEqual([])
+    expect((await getRoutine(id, store))!.name).toBe('Heavy legs')
+    await deleteRoutine(id, store)
+    expect(await getRoutine(id, store)).toBeUndefined()
+  })
+
+  it('resolves a Session to its own Routine, falling back by type only for older Sessions', async () => {
+    const store = new WorkoutDB('r-resolve')
+    const a = await saveRoutine({ sessionType: 'lower', name: 'A', entries: [] }, store)
+    const b = await saveRoutine({ sessionType: 'lower', name: 'B', entries: [] }, store)
+    const base = { type: 'lower' as const, location: 'gym', trainer: false, timer: false }
+    const sid = await startSession({ ...base, routineId: b }, store)
+    expect((await routineForSession((await store.sessions.get(sid))!, store))!.id).toBe(b)
+    const legacy = { ...(await store.sessions.get(sid))!, routineId: undefined }
+    expect((await routineForSession(legacy, store))!.id).toBe(a)
+    await deleteRoutine(b, store)
+    expect(await routineForSession((await store.sessions.get(sid))!, store)).toBeUndefined()
   })
 
   it('reorders entries and ignores moves off the ends', () => {
@@ -46,7 +94,7 @@ describe('routines', () => {
     await addSet(sid, set(ids[0]), store)
     await addSet(sid, set(ids[3]), store)
     const session = (await store.sessions.get(sid))!
-    const diff = routineDiff((await getRoutine('lower', store))!, session)
+    const diff = routineDiff((await routineForSession(session, store))!, session)
     expect(diff).toEqual({ added: [ids[3]], skipped: [ids[1], ids[2]] })
     const next = applyDiff(routine, diff, exercises)
     expect(next.entries.map((e) => e.exerciseId)).toEqual([ids[0], ids[3]])

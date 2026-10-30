@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { WorkoutDB } from './db'
 import { exerciseHistory, repChips, weightChips } from './history'
 import { stepIn } from './units'
-import { addSet, autoCloseStale, AUTO_CLOSE_MS, closeSession, correctSet, getActiveSession, startSession } from './sessions'
+import { addSet, autoCloseStale, AUTO_CLOSE_MS, closeSession, correctSet, deleteSession, getActiveSession, startSession } from './sessions'
 
 const opts = { type: 'lower' as const, location: 'gym', trainer: false, timer: true }
 const set = (exerciseId: number, weight: number, reps: number, warmup = false, unit: 'lb' | 'kg' = 'lb') => ({
@@ -30,6 +30,20 @@ describe('sessions', () => {
     const again = await getActiveSession(new WorkoutDB('s-resume'))
     expect(again?.id).toBe(id)
     expect(again?.sets).toHaveLength(2)
+  })
+
+  it('deletes a Session with its Suggestion log, leaving other Sessions alone', async () => {
+    const store = new WorkoutDB('s-delete')
+    const keep = await startSession(opts, store, 1000)
+    const drop = await startSession(opts, store, 2000)
+    await store.suggestionLog.bulkAdd([
+      { sessionId: keep, exerciseId: 1, stage: 'CALIBRATION', rule: 'calibration', suggested: {} },
+      { sessionId: drop, exerciseId: 1, stage: 'CALIBRATION', rule: 'calibration', suggested: {} },
+    ])
+    await deleteSession(drop, store)
+    expect(await store.sessions.get(drop)).toBeUndefined()
+    expect(await store.sessions.get(keep)).toBeDefined()
+    expect((await store.suggestionLog.toArray()).map((e) => e.sessionId)).toEqual([keep])
   })
 
   it('refuses to add to a closed Session', async () => {

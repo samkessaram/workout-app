@@ -147,7 +147,7 @@ export async function seedRoutines(store = db): Promise<SessionType[]> {
       })
       .filter((e): e is NonNullable<typeof e> => !!e)
     if (!entries.length) continue
-    const routine: Routine = { sessionType: type, entries }
+    const routine: Routine = { sessionType: type, name: type.charAt(0).toUpperCase() + type.slice(1), entries }
     await store.routines.add(routine)
     seeded.push(type)
   }

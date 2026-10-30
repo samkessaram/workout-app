@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Exercise, ExerciseKind, Unit } from '../lib/db'
   import {
-    EQUIPMENT, JOINTS, KINDS, KIND_DEFAULTS, MUSCLES, REST_CATEGORIES, REST_SECONDS, saveExercise, stepOptions,
+    deleteExercise, EQUIPMENT, exerciseSessionCount, JOINTS, KINDS, KIND_DEFAULTS, MUSCLES, REST_CATEGORIES, REST_SECONDS, saveExercise, stepOptions,
   } from '../lib/exercises'
   import { fmtWeight, roundTo } from '../lib/units'
   import Chips from './Chips.svelte'
@@ -14,10 +14,25 @@
   let form = $state<Exercise>({ ...exercise, bodyAreas: [...exercise.bodyAreas] })
   let error = $state('')
   let showKindHelp = $state(false)
+  let confirmDelete = $state(false)
+  let usedIn = $state(0)
   // svelte-ignore state_referenced_locally
   let startText = $state(exercise.startWeight === undefined ? '' : String(exercise.startWeight))
   // svelte-ignore state_referenced_locally
   const isNew = exercise.id === undefined
+
+  // svelte-ignore state_referenced_locally
+  if (exercise.id !== undefined) exerciseSessionCount(exercise.id).then((n) => (usedIn = n))
+
+  async function remove() {
+    try {
+      await deleteExercise(exercise.id!)
+      ondone()
+    } catch (e) {
+      error = e instanceof Error ? e.message : String(e)
+      confirmDelete = false
+    }
+  }
 
   function pickKind(k: ExerciseKind) {
     form.kind = k
@@ -137,4 +152,22 @@
     <button class="btn grow" onclick={ondone}>Cancel</button>
     <button class="btn btn-primary grow" onclick={save}>Save</button>
   </div>
+
+  {#if !isNew}
+    {#if usedIn > 0}
+      <p class="text-base-content/60 text-sm">
+        Logged in {usedIn} {usedIn === 1 ? 'Session' : 'Sessions'}, so it can't be deleted without erasing that history. Remove it from your Routines instead.
+      </p>
+    {:else if confirmDelete}
+      <div class="card card-border bg-base-100 p-4 grid grid-cols-1 gap-3" role="alertdialog">
+        <div>Delete {exercise.name}? It's also removed from any Routine that includes it.</div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button class="btn grow" onclick={() => (confirmDelete = false)}>Cancel</button>
+          <button class="btn btn-error grow" onclick={remove}>Yes, delete</button>
+        </div>
+      </div>
+    {:else}
+      <button class="btn btn-error btn-outline" onclick={() => (confirmDelete = true)}>Delete Exercise</button>
+    {/if}
+  {/if}
 </div>

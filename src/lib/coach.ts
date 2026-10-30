@@ -9,7 +9,7 @@ import { analyze } from './engine/stages'
 import { hasConfounder } from './chipDefs'
 import { getSetting, setSetting } from './settings.svelte'
 import { flagsRelevantTo, openFlags } from './pain'
-import { getRoutine } from './routines'
+import { routineForSession } from './routines'
 
 /** The Exercise as the engine sees it: Routine targets override the Exercise defaults. */
 export function engineExercise(ex: Exercise, entry?: RoutineEntry): EngineExercise {
@@ -33,7 +33,7 @@ export async function suggestionFor(
 ): Promise<Suggestion | undefined> {
   const ex = await store.exercises.get(exerciseId)
   if (!ex) return undefined
-  const routine = await getRoutine(session.type, store)
+  const routine = await routineForSession(session, store)
   const entry = routine?.entries.find((e) => e.exerciseId === exerciseId)
   const all = await exerciseHistory(exerciseId, store, { excludeSessionId: session.id })
   const history = applyBaseline(all, session.location, session.baselineAnswers?.[exerciseId] === 'new')

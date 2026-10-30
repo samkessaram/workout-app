@@ -12,7 +12,7 @@
   import { setExerciseNote, toggleExerciseChip } from '../lib/chips'
   import { holdWakeLock } from '../lib/feedback'
   import { clearRest } from '../lib/rest.svelte'
-  import { diffIsEmpty, getRoutine, routineDiff, type RoutineDiff } from '../lib/routines'
+  import { diffIsEmpty, routineDiff, routineForSession, type RoutineDiff } from '../lib/routines'
   import { addExerciseToSession, closeSession, setsFor, workingSets } from '../lib/sessions'
   import ExercisePicker from '../components/ExercisePicker.svelte'
   import PainFlagList from '../components/PainFlagList.svelte'
@@ -87,8 +87,8 @@
   let prompt = $state<{ routine: Routine; diff: RoutineDiff } | null>(null)
 
   $effect(() => {
-    const type = $session?.type
-    if (type) getRoutine(type).then((r) => (routine = r))
+    const s = $session
+    if (s) routineForSession(s).then((r) => (routine = r))
   })
 
   // The Routine's target sets, rep range and rest apply to Exercises it lists.
@@ -112,7 +112,7 @@
   async function close() {
     const closed = await closeSession(sessionId)
     clearRest()
-    const r = await getRoutine(closed.type)
+    const r = await routineForSession(closed)
     const diff = r ? routineDiff(r, closed) : undefined
     if (r && diff && !diffIsEmpty(diff)) prompt = { routine: r, diff }
     else onclosed()
