@@ -1,10 +1,12 @@
 <script lang="ts">
-  import { prefs, setUnit } from '../lib/settings.svelte'
+  import { prefs, setTheme, setUnit, type Theme } from '../lib/settings.svelte'
   import BackupNudge from '../components/BackupNudge.svelte'
   import Backup from './Backup.svelte'
   import LegacyImport from './LegacyImport.svelte'
   import ChipSettings from './ChipSettings.svelte'
   import ExerciseLibrary from './ExerciseLibrary.svelte'
+
+  const themes: Theme[] = ['system', 'light', 'dark']
 
   let view = $state<'main' | 'exercises' | 'chips' | 'backup' | 'legacy'>('main')
 </script>
@@ -52,5 +54,20 @@
     {/each}
   </div>
   <p class="text-base-content/60 text-sm">Changes display and input only. Logged weights keep the unit they were entered in.</p>
+</section>
+
+<section>
+  <h2>Appearance</h2>
+  <div class="join w-full" role="radiogroup" aria-label="Theme">
+    {#each themes as t}
+      <button
+        role="radio"
+        class="btn join-item flex-1 capitalize"
+        aria-checked={prefs.theme === t}
+        class:btn-primary={prefs.theme === t}
+        onclick={() => setTheme(t)}>{t}</button>
+    {/each}
+  </div>
+  <p class="text-base-content/60 text-sm">System follows your device setting.</p>
 </section>
 {/if}
