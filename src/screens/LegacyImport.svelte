@@ -17,6 +17,7 @@
   let mapping = $state<string | null>(null)
   let result = $state<(ImportResult & { seeded: string[] }) | null>(null)
   let busy = $state(false)
+  let reading = $state(false)
   let error = $state('')
 
   async function pick(ev: Event) {
@@ -26,12 +27,20 @@
     if (!files.length) return
     error = ''
     result = null
-    const inputs = await Promise.all(
-      files.map(async (f) => ({ name: f.webkitRelativePath || f.name, text: await f.text() })),
-    )
-    parsed = parseLegacy(inputs)
-    library = await db.exercises.toArray()
-    plan = planImport(parsed.sessions, library)
+    reading = true
+    try {
+      const inputs = await Promise.all(
+        files.map(async (f) => ({ name: f.webkitRelativePath || f.name, text: await f.text() })),
+      )
+      parsed = parseLegacy(inputs)
+      library = await db.exercises.toArray()
+      plan = planImport(parsed.sessions, library)
+    } catch (e) {
+      error = e instanceof Error ? e.message : String(e)
+      return
+    } finally {
+      reading = false
+    }
     resolutions = Object.fromEntries(
       plan.map((p) => [
         p.id,
@@ -125,9 +134,12 @@
     {/if}
 
     <button class="btn btn-primary btn-block" disabled={busy || parsed.sessions.length === 0} onclick={run}>
+      {#if busy}<span class="loading loading-spinner"></span>{/if}
       Import {parsed.sessions.length} Sessions
     </button>
     <button class="btn btn-block" onclick={() => (parsed = null)}>Cancel</button>
+  {:else if reading}
+    <div class="flex justify-center p-10" role="status"><span class="loading loading-spinner loading-lg"></span></div>
   {:else}
     <p class="text-base-content/60 text-sm">
       Choose the session JSON files you exported from S3 (several at once, or a folder). Nothing leaves this
