@@ -56,6 +56,14 @@ describe('SetLogger', () => {
     await waitFor(async () => expect((await db.sessions.get(sid))!.sets[0].weight).toBe(185))
   })
 
+  it('logs a bodyweight Set at 0 on any Exercise', async () => {
+    const { exId, sid } = await setup()
+    await mountLogger(exId, sid)
+    await fireEvent.click(screen.getByRole('button', { name: /Bodyweight/ }))
+    await fireEvent.click(screen.getByRole('button', { name: /Log set · bodyweight × 10/ }))
+    await waitFor(async () => expect((await db.sessions.get(sid))!.sets[0]).toMatchObject({ weight: 0, reps: 10 }))
+  })
+
   it('stores a warmup distinctly', async () => {
     const { exId, sid } = await setup()
     await mountLogger(exId, sid)

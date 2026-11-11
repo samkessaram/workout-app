@@ -14,6 +14,7 @@ export function roundTo(value: number, step: number): number {
 }
 
 export function fmtWeight(weight: number, unit: Unit): string {
+  if (weight === 0) return 'bodyweight'
   const n = Math.round(weight * 100) / 100
   return `${n} ${unit}`
 }

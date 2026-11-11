@@ -48,7 +48,7 @@
 
   const weight = $derived(pickedWeight ?? chips.recommended ?? 0)
   const repCount = $derived(pickedReps ?? recReps)
-  const canLog = $derived(repCount >= 1 && (weight > 0 || exercise.equipment === 'bodyweight'))
+  const canLog = $derived(repCount >= 1)
 
   async function log() {
     try {
@@ -103,6 +103,7 @@
   {/if}
 
   <Strip value={weight} {step} onchange={(w) => (pickedWeight = w)} fmt={(w) => String(w)} />
+  <button class="btn" class:btn-primary={weight === 0} aria-pressed={weight === 0} onclick={() => (pickedWeight = 0)}>Bodyweight (no added weight)</button>
 
   <div>
     <div class="label whitespace-normal mb-1">Reps</div>
