@@ -36,7 +36,7 @@ export async function startSession(opts: StartOptions, store = db, now = Date.no
 }
 
 export function lastActivity(s: Session): number {
-  return s.sets.reduce((t, x) => Math.max(t, x.at), s.startedAt)
+  return s.sets.reduce((t, x) => Math.max(t, x.at), s.reopenedAt ?? s.startedAt)
 }
 
 /** Closes any Session open for over 6 hours, as it stands. Returns the ids closed. */
@@ -122,6 +122,20 @@ export async function correctSet(
 export async function closeSession(sessionId: number, store = db, now = Date.now()): Promise<Session> {
   return mutate(sessionId, store, (s) => {
     s.closedAt = now
+  })
+}
+
+/** Reopens a closed Session to add Exercises or Sets. Only one Session can be open at a time. */
+export async function reopenSession(sessionId: number, store = db, now = Date.now()): Promise<Session> {
+  return store.transaction('rw', store.sessions, async () => {
+    const s = await store.sessions.get(sessionId)
+    if (!s) throw new Error(`Session ${sessionId} not found`)
+    if (s.closedAt === undefined) return s
+    if (await getActiveSession(store)) throw new Error('Finish the Session in progress first')
+    delete s.closedAt
+    s.reopenedAt = now
+    await store.sessions.put(s)
+    return s
   })
 }
 

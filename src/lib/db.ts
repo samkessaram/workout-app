@@ -69,6 +69,8 @@ export interface Session {
   timer: boolean
   startedAt: number
   closedAt?: number
+  /** Set when a closed Session is reopened, so auto-close counts from then rather than the last Set. */
+  reopenedAt?: number
   /** Exercises in the order planned or worked. */
   /** The Routine this Session started from. Absent on Sessions logged before Routines were named. */
   routineId?: number

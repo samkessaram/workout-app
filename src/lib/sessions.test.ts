@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { WorkoutDB } from './db'
 import { exerciseHistory, repChips, weightChips } from './history'
 import { stepIn } from './units'
-import { addSet, autoCloseStale, AUTO_CLOSE_MS, closeSession, correctSet, deleteSession, getActiveSession, startSession } from './sessions'
+import { addSet, autoCloseStale, AUTO_CLOSE_MS, closeSession, correctSet, deleteSession, getActiveSession, reopenSession, startSession } from './sessions'
 
 const opts = { type: 'lower' as const, location: 'gym', trainer: false, timer: true }
 const set = (exerciseId: number, weight: number, reps: number, warmup = false, unit: 'lb' | 'kg' = 'lb') => ({
@@ -63,6 +63,37 @@ describe('sessions', () => {
     const s = (await store.sessions.get(id))!
     expect(s.closedAt).toBe(t0 + 60_000)
     expect(s.sets).toHaveLength(1)
+  })
+})
+
+describe('reopening', () => {
+  it('reopens a closed Session so Sets can be added again', async () => {
+    const store = new WorkoutDB('s-reopen')
+    const id = await startSession(opts, store, 1000)
+    await addSet(id, set(1, 100, 10), store, 2000)
+    await closeSession(id, store, 3000)
+    await reopenSession(id, store, 4000)
+    expect((await getActiveSession(store))?.id).toBe(id)
+    await addSet(id, set(2, 50, 12), store, 5000)
+    expect((await store.sessions.get(id))!.sets).toHaveLength(2)
+  })
+
+  it('refuses while another Session is open', async () => {
+    const store = new WorkoutDB('s-reopen-busy')
+    const old = await startSession(opts, store, 1000)
+    await closeSession(old, store, 2000)
+    await startSession(opts, store, 3000)
+    await expect(reopenSession(old, store)).rejects.toThrow('in progress')
+  })
+
+  it('is not auto-closed straight away just because its last Set is old', async () => {
+    const store = new WorkoutDB('s-reopen-stale')
+    const id = await startSession(opts, store, 0)
+    await addSet(id, set(1, 100, 10), store, 1000)
+    await closeSession(id, store, 2000)
+    const t = AUTO_CLOSE_MS * 3
+    await reopenSession(id, store, t)
+    expect(await autoCloseStale(store, t + 60_000)).toEqual([])
   })
 })
 

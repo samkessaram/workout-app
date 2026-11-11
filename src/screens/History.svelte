@@ -5,9 +5,10 @@
   import { exerciseHistory, type ExerciseSession } from '../lib/history'
   import { summarizeSets } from '../lib/historyView'
   import { clearRest } from '../lib/rest.svelte'
-  import { deleteSession, setsFor } from '../lib/sessions'
+  import { deleteSession, reopenSession, setsFor } from '../lib/sessions'
   import Chips from '../components/Chips.svelte'
   import SetRow from '../components/SetRow.svelte'
+  import SessionView from './SessionView.svelte'
 
   const data = liveQuery(async () => ({
     sessions: (await db.sessions.toArray()).sort((a, b) => b.startedAt - a.startedAt),
@@ -19,6 +20,20 @@
   let exerciseId = $state<number | null>(null)
   let past = $state<ExerciseSession[]>([])
   let confirmDelete = $state(false)
+  let editing = $state(false)
+  let editError = $state('')
+
+  async function reopen() {
+    const id = sessionId
+    if (id === null) return
+    editError = ''
+    try {
+      await reopenSession(id, db)
+      editing = true
+    } catch (e) {
+      editError = e instanceof Error ? e.message : String(e)
+    }
+  }
 
   // Re-read whenever the Session data changes, so Corrections show up straight away.
   $effect(() => {
@@ -47,7 +62,9 @@
   }
 </script>
 
-{#if session}
+{#if session && editing}
+  <SessionView sessionId={session.id!} onclosed={() => (editing = false)} />
+{:else if session}
   <div class="flex flex-wrap items-center gap-2">
     <button class="btn" onclick={() => (sessionId = null)}>‹ History</button>
     <h1 class="grow" style="margin:0">{session.date}</h1>
@@ -75,6 +92,10 @@
     {:else}
       <p class="text-base-content/60 text-sm">No sets were logged.</p>
     {/each}
+    {#if session.closedAt !== undefined}
+      <button class="btn btn-primary" onclick={reopen}>Reopen to add Exercises or Sets</button>
+      {#if editError}<p class="text-error" role="alert">{editError}</p>{/if}
+    {/if}
     {#if confirmDelete}
       <div class="card card-border bg-base-100 p-4 grid grid-cols-1 gap-3" role="alertdialog">
         <div>Delete this Session and all its Sets? This can't be undone, and progression forgets it.</div>
